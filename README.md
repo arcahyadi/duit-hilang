@@ -115,8 +115,7 @@ Header: X-API-Key: ft_...
 ### Base URL
 
 - Lokal: `http://localhost:8000/api/v1`
-- VPS: `http://172.16.2.94:8000/api/v1`
-- Produksi (nanti): `https://<domain>/api/v1`
+- VPS: `https://<domain>/api/v1` (ganti `<domain>` dengan domain yang dipakai)
 
 Docs interaktif (Swagger): buka `/docs` di browser.
 
@@ -137,7 +136,7 @@ Docs interaktif (Swagger): buka `/docs` di browser.
 **Request:**
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/transactions?from=2026-08-01&to=2026-08-31&type=expense" \
+curl "https://<domain>/api/v1/transactions?from=2026-08-01&to=2026-08-31&type=expense" \
   -H "X-API-Key: ft_..."
 ```
 
@@ -161,7 +160,7 @@ curl "http://172.16.2.94:8000/api/v1/transactions?from=2026-08-01&to=2026-08-31&
 ### GET /transactions/{id} — detail transaksi
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/transactions/d3e18e33-afda-4fcd-bda9-c5e64aa7c500" \
+curl "https://<domain>/api/v1/transactions/d3e18e33-afda-4fcd-bda9-c5e64aa7c500" \
   -H "X-API-Key: ft_..."
 ```
 
@@ -193,7 +192,7 @@ tidak ada atau bukan milik pemilik key.
 **Request:**
 
 ```bash
-curl -X POST "http://172.16.2.94:8000/api/v1/transactions" \
+curl -X POST "https://<domain>/api/v1/transactions" \
   -H "X-API-Key: ft_..." \
   -H "Content-Type: application/json" \
   -d '{
@@ -224,7 +223,7 @@ curl -X POST "http://172.16.2.94:8000/api/v1/transactions" \
 ### GET /summary — ringkasan bulan
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/summary?month=2026-08" \
+curl "https://<domain>/api/v1/summary?month=2026-08" \
   -H "X-API-Key: ft_..."
 ```
 
@@ -242,7 +241,7 @@ curl "http://172.16.2.94:8000/api/v1/summary?month=2026-08" \
 ### GET /categories — daftar kategori
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/categories" -H "X-API-Key: ft_..."
+curl "https://<domain>/api/v1/categories" -H "X-API-Key: ft_..."
 ```
 
 **Response `200`:**
@@ -253,7 +252,7 @@ curl "http://172.16.2.94:8000/api/v1/categories" -H "X-API-Key: ft_..."
 ### GET /accounts — daftar akun
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/accounts" -H "X-API-Key: ft_..."
+curl "https://<domain>/api/v1/accounts" -H "X-API-Key: ft_..."
 ```
 
 **Response `200`:**
@@ -264,7 +263,7 @@ curl "http://172.16.2.94:8000/api/v1/accounts" -H "X-API-Key: ft_..."
 ### GET /budgets — daftar budget + pemakaian
 
 ```bash
-curl "http://172.16.2.94:8000/api/v1/budgets?month=2026-08" -H "X-API-Key: ft_..."
+curl "https://<domain>/api/v1/budgets?month=2026-08" -H "X-API-Key: ft_..."
 ```
 
 **Response `200`:**
