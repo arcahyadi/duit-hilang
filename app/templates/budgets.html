@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Budget - Finance Tracker{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-header">Tambah budget {{ month }}</div>
+      <div class="card-body">
+        {% if request.query_params.get('error') == 'limit' %}<div class="alert alert-danger">Limit tidak valid</div>{% endif %}
+        <form method="post" action="/budgets">
+          <div class="mb-2"><label class="form-label">Kategori</label>
+            <select name="category_id" class="form-select" required>
+              {% for c in categories %}<option value="{{ c.id }}">{{ c.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3"><label class="form-label">Limit (Rp)</label><input type="text" name="limit" class="form-control" inputmode="decimal" placeholder="1000000" required></div>
+          <button class="btn btn-primary w-100">Simpan</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card"><div class="card-header">Progress budget {{ month }}</div>
+      <div class="card-body">
+        {% for b in budgets %}
+          {% set s = spent.get(b.category_id, 0) %}
+          {% set pct = (s / b.limit * 100)|round(1) if b.limit else 0 %}
+          <div class="mb-3">
+            <div class="d-flex justify-content-between">
+              <span>{{ b.category.name }}</span>
+              <span>{{ s|rupiah }} / {{ b.limit|rupiah }} ({{ pct }}%)</span>
+            </div>
+            <div class="progress" style="height:10px">
+              <div class="progress-bar {{ 'bg-danger' if pct >= 100 else ('bg-warning' if pct >= 80 else 'bg-success') }}"
+                   style="width: {{ [pct, 100]|min }}%"></div>
+            </div>
+            <form method="post" action="/budgets/{{ b.id }}/delete" class="mt-1">
+              <button class="btn btn-sm btn-outline-danger">Hapus</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="text-secondary">Belum ada budget bulan ini.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

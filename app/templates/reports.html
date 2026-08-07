@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Laporan - Finance Tracker{% endblock %}
+{% block content %}
+<div class="card mb-3"><div class="card-body">
+  <form method="get" action="/reports" class="row g-2 align-items-end">
+    <div class="col-auto"><label class="form-label">Bulan</label>
+      <input type="month" name="month" class="form-control" value="{{ month }}">
+    </div>
+    <div class="col-auto"><button class="btn btn-primary">Tampilkan</button></div>
+  </form>
+</div></div>
+
+<div class="row g-3 mb-3">
+  <div class="col-md-4"><div class="card"><div class="card-body text-center">
+    <div class="text-secondary small">Pemasukan</div><div class="fs-5 text-success">{{ total_income|rupiah }}</div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body text-center">
+    <div class="text-secondary small">Pengeluaran</div><div class="fs-5 text-danger">{{ total_expense|rupiah }}</div>
+  </div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body text-center">
+    <div class="text-secondary small">Selisih</div><div class="fs-5">{{ (total_income - total_expense)|rupiah }}</div>
+  </div></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-md-5">
+    <div class="card"><div class="card-header">Per kategori</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          {% for name, total in per_category.items() %}
+          <tr><td>{{ name }}</td><td class="text-end">{{ total|rupiah }}</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+    <div class="card mt-3"><div class="card-header">Per akun</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          {% for name, total in per_account.items() %}
+          <tr><td>{{ name }}</td><td class="text-end">{{ total|rupiah }}</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card"><div class="card-header">Detail transaksi</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Akun</th><th>Catatan</th><th class="text-end">Jumlah</th></tr></thead>
+          <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>{{ t.date }}</td>
+              <td>{{ 'Masuk' if t.type == 'income' else 'Keluar' }}</td>
+              <td>{{ t.category.name if t.category else '-' }}</td>
+              <td>{{ t.account.name if t.account else '-' }}</td>
+              <td>{{ t.note or '-' }}</td>
+              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
+            </tr>
+          {% else %}
+            <tr><td colspan="6" class="text-center text-secondary">Tidak ada transaksi bulan ini</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

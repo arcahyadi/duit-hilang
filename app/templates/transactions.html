@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Transaksi - Finance Tracker{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card"><div class="card-header">Tambah transaksi</div>
+      <div class="card-body">
+        {% if request.query_params.get('error') == 'amount' %}<div class="alert alert-danger">Jumlah tidak valid</div>{% endif %}
+        <form method="post" action="/transactions">
+          <div class="mb-2"><label class="form-label">Tanggal</label><input type="date" name="date" class="form-control" value="{{ now }}" required></div>
+          <div class="mb-2"><label class="form-label">Tipe</label>
+            <select name="type" class="form-select"><option value="expense">Pengeluaran</option><option value="income">Pemasukan</option></select>
+          </div>
+          <div class="mb-2"><label class="form-label">Jumlah (Rp)</label><input type="text" name="amount" class="form-control" inputmode="decimal" placeholder="150000" required></div>
+          <div class="mb-2"><label class="form-label">Kategori</label>
+            <select name="category_id" class="form-select">
+              <option value="">- pilih -</option>
+              {% for c in categories %}<option value="{{ c.id }}">{{ c.name }} ({{ 'masuk' if c.type == 'income' else 'keluar' }})</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-2"><label class="form-label">Akun</label>
+            <select name="account_id" class="form-select">
+              <option value="">- pilih -</option>
+              {% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}
+            </select>
+          </div>
+          <div class="mb-3"><label class="form-label">Catatan</label><input type="text" name="note" class="form-control"></div>
+          <button class="btn btn-primary w-100">Simpan</button>
+        </form>
+      </div>
+    </div>
+    <div class="card mt-3"><div class="card-header">Tambah cepat</div>
+      <div class="card-body">
+        <form method="post" action="/categories" class="mb-2 d-flex gap-2">
+          <input type="text" name="name" class="form-control" placeholder="Kategori baru" required>
+          <select name="type" class="form-select w-auto"><option value="expense">Keluar</option><option value="income">Masuk</option></select>
+          <button class="btn btn-outline-light">Tambah</button>
+        </form>
+        <form method="post" action="/accounts" class="d-flex gap-2">
+          <input type="text" name="name" class="form-control" placeholder="Akun baru (GoPay, BCA...)" required>
+          <button class="btn btn-outline-light">Tambah</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="card"><div class="card-header">Daftar transaksi</div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Akun</th><th>Catatan</th><th class="text-end">Jumlah</th><th></th></tr></thead>
+          <tbody>
+          {% for t in transactions %}
+            <tr>
+              <td>{{ t.date }}</td>
+              <td>{{ 'Masuk' if t.type == 'income' else 'Keluar' }}</td>
+              <td>{{ t.category.name if t.category else '-' }}</td>
+              <td>{{ t.account.name if t.account else '-' }}</td>
+              <td>{{ t.note or '-' }}</td>
+              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
+              <td><form method="post" action="/transactions/{{ t.id }}/delete" onsubmit="return confirm('Hapus transaksi ini?')"><button class="btn btn-sm btn-outline-danger">Hapus</button></form></td>
+            </tr>
+          {% else %}
+            <tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Admin - Finance Tracker{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card"><div class="card-header">User</div>
+      <div class="card-body">
+        {% if request.query_params.get('error') == 'exists' %}<div class="alert alert-warning">Email sudah terdaftar</div>{% endif %}
+        {% if request.query_params.get('error') == 'missing' %}<div class="alert alert-warning">Lengkapi email & password</div>{% endif %}
+        <table class="table table-sm">
+          <thead><tr><th>Email</th><th>Role</th><th></th></tr></thead>
+          <tbody>
+          {% for u in users %}
+            <tr>
+              <td>{{ u.email }}</td>
+              <td>{{ 'Admin' if u.is_admin else 'User' }}</td>
+              <td>
+                {% if not u.is_admin %}
+                <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Hapus user ini beserta semua datanya?')">
+                  <button class="btn btn-sm btn-outline-danger">Hapus</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <form method="post" action="/admin/users" class="d-flex gap-2">
+          <input type="email" name="email" class="form-control" placeholder="email@contoh.com" required>
+          <input type="password" name="password" class="form-control" placeholder="password" required>
+          <button class="btn btn-primary">Tambah</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card"><div class="card-header">API keys</div>
+      <div class="card-body">
+        {% if new_key %}
+        <div class="alert alert-success">
+          <strong>Simpan key ini, hanya tampil sekali:</strong><br>
+          <code>{{ new_key }}</code>
+        </div>
+        {% endif %}
+        <table class="table table-sm">
+          <thead><tr><th>Nama</th><th>Status</th><th>Dibuat</th><th></th></tr></thead>
+          <tbody>
+          {% for k in api_keys %}
+            <tr>
+              <td>{{ k.name }}</td>
+              <td>{{ 'Revoked' if k.revoked else 'Aktif' }}</td>
+              <td>{{ k.created_at.date() if k.created_at }}</td>
+              <td>
+                {% if not k.revoked %}
+                <form method="post" action="/admin/api-keys/{{ k.id }}/revoke" onsubmit="return confirm('Revoke key ini?')">
+                  <button class="btn btn-sm btn-outline-danger">Revoke</button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <form method="post" action="/admin/api-keys" class="d-flex gap-2">
+          <input type="text" name="name" class="form-control" placeholder="Nama key (mis: bot telegram)" required>
+          <button class="btn btn-primary">Buat</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -7,7 +7,7 @@ from sqlalchemy import func
 from .config import settings
 from .database import SessionLocal
 from .models import User
-from .routes import api, auth, web
+from .routes import admin, api, auth, web
 from .security import hash_password
 
 
@@ -36,5 +36,6 @@ app.middleware("http")(csrf_check)
 app.include_router(auth.router)
 app.include_router(web.router)
 app.include_router(api.router)
+app.include_router(admin.router)
 
 app.add_event_handler("startup", seed_admin)

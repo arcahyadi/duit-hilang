@@ -1,6 +1,9 @@
+import base64
 import datetime
 import io
 
+import pyotp
+import qrcode
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from sqlalchemy import func
@@ -8,7 +11,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from ..database import get_db
 from ..deps import get_current_user
-from ..models import Account, Budget, Category, Transaction, User
+from ..models import Account, Budget, Category, Passkey, Transaction, User
 from ..ui import templates
 
 router = APIRouter()
@@ -263,6 +266,42 @@ def export_csv(user: User = Depends(get_current_user), db: Session = Depends(get
 
 @router.get("/settings", response_class=HTMLResponse)
 def settings_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from ..models import Passkey
     passkeys = db.query(Passkey).filter(Passkey.user_id == user.id).all()
-    return templates.TemplateResponse(request, "settings.html", {"user": user, "passkeys": passkeys})
+    totp_qr = None
+    if user.totp_enabled:
+        totp_qr = None
+    return templates.TemplateResponse(request, "settings.html", {"user": user, "passkeys": passkeys, "totp_qr": totp_qr})
+
+
+@router.get("/settings/totp/qr")
+def totp_qr(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user.totp_secret:
+        user.totp_secret = pyotp.random_base32()
+        db.commit()
+    uri = pyotp.TOTP(user.totp_secret).provisioning_uri(name=user.email, issuer_name="Finance Tracker")
+    img = qrcode.make(uri)
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return StreamingResponse(buffer, media_type="image/png")
+
+
+@router.post("/settings/totp/enable")
+def totp_enable(
+    code: str = Form(...),
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    if not user.totp_secret or not pyotp.TOTP(user.totp_secret).verify(code.strip()):
+        return RedirectResponse("/settings?error=totp", status_code=303)
+    user.totp_enabled = True
+    db.commit()
+    return RedirectResponse("/settings", status_code=303)
+
+
+@router.post("/settings/totp/disable")
+def totp_disable(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    user.totp_enabled = False
+    user.totp_secret = None
+    db.commit()
+    return RedirectResponse("/settings", status_code=303)

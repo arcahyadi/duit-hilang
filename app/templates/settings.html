@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Settings - Finance Tracker{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card"><div class="card-header">Keamanan</div>
+      <div class="card-body">
+        <h6>2FA (TOTP)</h6>
+        {% if user.totp_enabled %}
+          <p class="text-success">2FA aktif.</p>
+          <form method="post" action="/settings/totp/disable" onsubmit="return confirm('Matikan 2FA?')">
+            <button class="btn btn-outline-danger">Matikan 2FA</button>
+          </form>
+        {% else %}
+          {% if request.query_params.get('error') == 'totp' %}<div class="alert alert-danger">Kode salah, coba lagi</div>{% endif %}
+          <p>Scan QR dengan Google Authenticator / Authy, lalu masukkan kode 6 digit:</p>
+          <img src="/settings/totp/qr" alt="QR 2FA" class="img-fluid mb-2" style="max-width:200px">
+          <form method="post" action="/settings/totp/enable" class="d-flex gap-2">
+            <input type="text" name="code" class="form-control" inputmode="numeric" maxlength="6" placeholder="123456" required>
+            <button class="btn btn-primary">Aktifkan</button>
+          </form>
+        {% endif %}
+        <hr>
+        <h6>Passkey</h6>
+        {% for p in passkeys %}
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <span>Passkey {{ p.credential_id[:8] }}…</span>
+            <form method="post" action="/auth/passkey/register/delete">
+              <input type="hidden" name="credential_id" value="{{ p.credential_id }}">
+              <button class="btn btn-sm btn-outline-danger">Hapus</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="text-secondary">Belum ada passkey terdaftar.</p>
+        {% endfor %}
+        <button class="btn btn-outline-light" onclick="registerPasskey()">Daftarkan passkey baru</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+async function registerPasskey() {
+  const r = await fetch('/auth/passkey/register/options', { method: 'POST' });
+  const { options } = await r.json();
+  const cred = await navigator.credentials.create({ publicKey: options });
+  const resp = await fetch('/auth/passkey/register/verify', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: cred.id, rawId: cred.rawId, type: cred.type, response: {
+      clientDataJSON: cred.response.clientDataJSON,
+      attestationObject: cred.response.attestationObject
+    }})
+  });
+  if (resp.ok) { location.reload(); } else { alert('Gagal daftarkan passkey'); }
+}
+</script>
+{% endblock %}
