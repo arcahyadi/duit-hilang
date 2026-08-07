@@ -35,11 +35,12 @@ Self-check:
 
 ## Deploy (VPS + Cloudflare Tunnel + Portainer)
 
-Akses publik lewat Cloudflare Tunnel; cloudflared jalan di host VPS, app tidak perlu port publik.
+Akses publik lewat Cloudflare Tunnel; cloudflared jalan di host VPS, app bind
+`127.0.0.1:8000` (localhost saja, tidak terbuka ke publik).
 
 ```bash
 # 1. Siapkan .env di VPS (dari .env.example)
-cp .env.example .env   # isi DOMAIN, SECRET_KEY, DB_PASSWORD, ADMIN_*
+cp .env.example .env   # isi DOMAIN, SECRET_KEY, DB_PASSWORD, ADMIN_*, RP_ID, RP_ORIGIN
 ```
 
 ```bash
@@ -50,9 +51,10 @@ docker compose stop            # stop; volume financial-tracker_pgdata tetap ada
 
 ```bash
 # 3. Buat stack di Portainer (UI atau API), isi dari docker-compose.portainer.yml
-#    - Set env stack: DB_PASSWORD, SECRET_KEY, DOMAIN, ADMIN_EMAIL, ADMIN_PASSWORD
+#    - Set env stack: DB_PASSWORD, SECRET_KEY, DOMAIN, ADMIN_EMAIL, ADMIN_PASSWORD,
+#      RP_ID, RP_ORIGIN (https://<DOMAIN>), COOKIE_SECURE=true
 #    - Volume pgdata external: name financial-tracker_pgdata
-#    - Tidak bind port; akses via cloudflared
+#    - Bind port 127.0.0.1:8000 (penting: cloudflared di host akses lewat localhost)
 ```
 
 ```bash
@@ -83,7 +85,8 @@ systemctl start cloudflared
 Catatan penting dari pengalaman deploy:
 - `config.py` memakai `extra="ignore"` supaya env Docker (`DB_PASSWORD`, `DOMAIN`, dll) tidak menolak Settings
 - Jangan pernah dua postgres memakai volume yang sama; stack Portainer memakai volume external `financial-tracker_pgdata`
-- Update aplikasi: build image baru (langkah 2), lalu update stack di Portainer (ganti `image: financial-tracker-app:latest` tetap, container recreate)
+- `RP_ID`/`RP_ORIGIN` wajib diisi persis domain (dipakai WebAuthn + CSRF check). `COOKIE_SECURE=true` untuk HTTPS
+- Update aplikasi: build image baru (`docker build -t financial-tracker-app:latest .`), lalu update stack di Portainer (container recreate)
 - HTTP/HTTPS otomatis via `scripts/start.sh`: isi `SSL_CERTFILE` + `SSL_KEYFILE` untuk HTTPS langsung, kosongkan untuk HTTP (akses normal via Cloudflare Tunnel tetap HTTPS di edge)
 
 ## API

@@ -1,11 +1,14 @@
 # Versi untuk Portainer stack di VPS (di-upload via UI/API Portainer).
-# - Tidak bind port: akses lewat cloudflared (host), bukan port publik
+# - Bind 127.0.0.1:8000 (hanya localhost): cloudflared di host perlu akses
+#   ke localhost:8000 untuk meneruskan trafik dari tunnel.
 # - Image prebuilt (build dilakukan di dev/CI), Portainer tidak perlu Dockerfile
 # - Volume pgdata external: memakai volume compose yang sudah ada, data tidak dobel
 services:
   app:
     image: financial-tracker-app:latest
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
     environment:
       DATABASE_URL: postgresql+psycopg://finance:${DB_PASSWORD}@db:5432/finance
       SECRET_KEY: ${SECRET_KEY}
