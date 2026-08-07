@@ -33,9 +33,9 @@ Self-check:
 .venv/bin/python tests/self_check.py
 ```
 
-## Deploy (VPS + Cloudflare Tunnel)
+## Deploy (VPS + Cloudflare Tunnel + Portainer)
 
-Akses publik lewat Cloudflare Tunnel; cloudflared jalan di host VPS, app hanya listen di localhost.
+Akses publik lewat Cloudflare Tunnel; cloudflared jalan di host VPS, app tidak perlu port publik.
 
 ```bash
 # 1. Siapkan .env di VPS (dari .env.example)
@@ -43,21 +43,27 @@ cp .env.example .env   # isi DOMAIN, SECRET_KEY, DB_PASSWORD, ADMIN_*
 ```
 
 ```bash
-# 2. Jalankan app + database
-docker compose up -d --build
-# migration otomatis saat container start; cek: curl http://localhost:8000/docs
+# 2. Build image + seed data volume sekali (di VPS)
+docker compose up -d --build   # jalankan sekali: buat volume + migration
+docker compose stop            # stop; volume financial-tracker_pgdata tetap ada
 ```
 
 ```bash
-# 3. Pasang cloudflared di host (bukan di compose)
-#    https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+# 3. Buat stack di Portainer (UI atau API), isi dari docker-compose.portainer.yml
+#    - Set env stack: DB_PASSWORD, SECRET_KEY, DOMAIN, ADMIN_EMAIL, ADMIN_PASSWORD
+#    - Volume pgdata external: name financial-tracker_pgdata
+#    - Tidak bind port; akses via cloudflared
+```
+
+```bash
+# 4. Pasang cloudflared di host (bukan di compose)
 cloudflared tunnel login                          # pilih domain di dashboard
 cloudflared tunnel create finance                 # catat Tunnel ID
 cloudflared tunnel route dns finance <DOMAIN>     # buat DNS CNAME
 ```
 
 ```bash
-# 4. Buat /etc/cloudflared/config.yml
+# 5. Buat /etc/cloudflared/config.yml
 tunnel: <Tunnel-ID>
 credentials-file: /root/.cloudflared/<Tunnel-ID>.json
 
@@ -68,15 +74,16 @@ ingress:
 ```
 
 ```bash
-# 5. Jalankan sebagai service
+# 6. Jalankan sebagai service
 cloudflared service install
 systemctl start cloudflared
 # buka https://<DOMAIN>
 ```
 
-- Migrasi DB jalan otomatis saat container start
-- Backup: `scripts/backup.sh` via cron di host, atau di dalam container `db`
-- Update aplikasi: `git pull && docker compose up -d --build`
+Catatan penting dari pengalaman deploy:
+- `config.py` memakai `extra="ignore"` supaya env Docker (`DB_PASSWORD`, `DOMAIN`, dll) tidak menolak Settings
+- Jangan pernah dua postgres memakai volume yang sama; stack Portainer memakai volume external `financial-tracker_pgdata`
+- Update aplikasi: build image baru (langkah 2), lalu update stack di Portainer (ganti `image: financial-tracker-app:latest` tetap, container recreate)
 
 ## API
 

@@ -1,7 +1,8 @@
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
     app_name: str = "Finance Tracker"
     database_url: str = "postgresql+psycopg://finance:finance@localhost:5432/finance"
     secret_key: str = "change-me"
@@ -11,9 +12,6 @@ class Settings(BaseSettings):
     rp_origin: str = "http://localhost:8000"
     admin_email: str = "admin@example.com"
     admin_password: str = "change-me"
-
-    class Config:
-        env_file = ".env"
 
 
 settings = Settings()

@@ -1,0 +1,44 @@
+# Versi untuk Portainer stack di VPS (di-upload via UI/API Portainer).
+# - Tidak bind port: akses lewat cloudflared (host), bukan port publik
+# - Image prebuilt (build dilakukan di dev/CI), Portainer tidak perlu Dockerfile
+# - Volume pgdata external: memakai volume compose yang sudah ada, data tidak dobel
+services:
+  app:
+    image: financial-tracker-app:latest
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql+psycopg://finance:${DB_PASSWORD}@db:5432/finance
+      SECRET_KEY: ${SECRET_KEY}
+      COOKIE_SECURE: "true"
+      RP_ID: ${DOMAIN}
+      RP_ORIGIN: https://${DOMAIN}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: finance
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: finance
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U finance"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [internal]
+
+networks:
+  internal:
+
+volumes:
+  pgdata:
+    external: true
+    name: financial-tracker_pgdata
