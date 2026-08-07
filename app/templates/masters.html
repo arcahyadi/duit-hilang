@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Master Data - Finance Tracker{% endblock %}
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-tags"></i> Kategori</h3></div>
+      <div class="card-body">
+        <table class="table table-sm table-striped mb-3">
+          <thead><tr><th>Nama</th><th>Tipe</th><th class="text-end">Aksi</th></tr></thead>
+          <tbody>
+          {% for c in categories %}
+            <tr>
+              <td>{{ c.name }}</td>
+              <td><span class="badge {{ 'text-bg-success' if c.type == 'income' else 'text-bg-danger' }}">{{ 'Masuk' if c.type == 'income' else 'Keluar' }}</span></td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" onclick="editCat('{{ c.id }}', '{{ c.name }}', '{{ c.type }}')"><i class="fa-solid fa-pen"></i></button>
+                <form method="post" action="/categories/{{ c.id }}/delete" class="d-inline" onsubmit="return confirm('Hapus kategori ini? Transaksi dengan kategori ini jadi tanpa kategori.')">
+                  <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="3" class="text-center text-secondary">Belum ada kategori</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <form method="post" action="/categories" class="d-flex gap-2">
+          <input type="text" name="name" class="form-control" placeholder="Nama kategori" required>
+          <select name="type" class="form-select w-auto"><option value="expense">Keluar</option><option value="income">Masuk</option></select>
+          <button class="btn btn-primary"><i class="fa-solid fa-plus"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-wallet"></i> Akun</h3></div>
+      <div class="card-body">
+        <table class="table table-sm table-striped mb-3">
+          <thead><tr><th>Nama</th><th class="text-end">Aksi</th></tr></thead>
+          <tbody>
+          {% for a in accounts %}
+            <tr>
+              <td>{{ a.name }}</td>
+              <td class="text-end">
+                <button class="btn btn-sm btn-outline-primary" onclick="editAcc('{{ a.id }}', '{{ a.name }}')"><i class="fa-solid fa-pen"></i></button>
+                <form method="post" action="/accounts/{{ a.id }}/delete" class="d-inline" onsubmit="return confirm('Hapus akun ini?')">
+                  <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+          {% else %}
+            <tr><td colspan="2" class="text-center text-secondary">Belum ada akun</td></tr>
+          {% endfor %}
+          </tbody>
+        </table>
+        <form method="post" action="/accounts" class="d-flex gap-2">
+          <input type="text" name="name" class="form-control" placeholder="Nama akun (GoPay, BCA...)" required>
+          <button class="btn btn-primary"><i class="fa-solid fa-plus"></i></button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Edit modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog"><div class="modal-content">
+    <div class="modal-header"><h5 class="modal-title">Edit</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+    <form method="post" id="editForm">
+      <div class="modal-body">
+        <input type="hidden" name="id" id="editId">
+        <div class="mb-3"><label class="form-label">Nama</label><input type="text" name="name" id="editName" class="form-control" required></div>
+        <div class="mb-3" id="editTypeWrap" style="display:none">
+          <label class="form-label">Tipe</label>
+          <select name="type" id="editType" class="form-select"><option value="expense">Keluar</option><option value="income">Masuk</option></select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+        <button type="submit" class="btn btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div></div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function editCat(id, name, type) {
+  document.getElementById('editForm').action = '/categories/' + id + '/edit';
+  document.getElementById('editName').value = name;
+  document.getElementById('editType').value = type;
+  document.getElementById('editTypeWrap').style.display = 'block';
+  new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+function editAcc(id, name) {
+  document.getElementById('editForm').action = '/accounts/' + id + '/edit';
+  document.getElementById('editName').value = name;
+  document.getElementById('editTypeWrap').style.display = 'none';
+  new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+</script>
+{% endblock %}

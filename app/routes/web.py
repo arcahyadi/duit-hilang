@@ -127,7 +127,29 @@ def category_create(
         if not exists:
             db.add(Category(user_id=user.id, name=name, type=type))
             db.commit()
-    return RedirectResponse("/transactions", status_code=303)
+    return RedirectResponse("/masters", status_code=303)
+
+
+@router.post("/categories/{cat_id}/edit")
+def category_edit(
+    cat_id: str, name: str = Form(...), type: str = Form("expense"),
+    user: User = Depends(get_web_user), db: Session = Depends(get_db),
+):
+    c = db.get(Category, cat_id)
+    if c and c.user_id == user.id:
+        c.name = name.strip() or c.name
+        c.type = type if type in ("income", "expense") else c.type
+        db.commit()
+    return RedirectResponse("/masters", status_code=303)
+
+
+@router.post("/categories/{cat_id}/delete")
+def category_delete(cat_id: str, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
+    c = db.get(Category, cat_id)
+    if c and c.user_id == user.id:
+        db.delete(c)
+        db.commit()
+    return RedirectResponse("/masters", status_code=303)
 
 
 @router.post("/accounts")
@@ -141,7 +163,37 @@ def account_create(
         if not exists:
             db.add(Account(user_id=user.id, name=name))
             db.commit()
-    return RedirectResponse("/transactions", status_code=303)
+    return RedirectResponse("/masters", status_code=303)
+
+
+@router.post("/accounts/{acc_id}/edit")
+def account_edit(
+    acc_id: str, name: str = Form(...),
+    user: User = Depends(get_web_user), db: Session = Depends(get_db),
+):
+    a = db.get(Account, acc_id)
+    if a and a.user_id == user.id:
+        a.name = name.strip() or a.name
+        db.commit()
+    return RedirectResponse("/masters", status_code=303)
+
+
+@router.post("/accounts/{acc_id}/delete")
+def account_delete(acc_id: str, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
+    a = db.get(Account, acc_id)
+    if a and a.user_id == user.id:
+        db.delete(a)
+        db.commit()
+    return RedirectResponse("/masters", status_code=303)
+
+
+@router.get("/masters", response_class=HTMLResponse)
+def masters_page(request: Request, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
+    categories = db.query(Category).filter(Category.user_id == user.id).order_by(Category.type, Category.name).all()
+    accounts = db.query(Account).filter(Account.user_id == user.id).order_by(Account.name).all()
+    return templates.TemplateResponse(request, "masters.html", {
+        "user": user, "categories": categories, "accounts": accounts,
+    })
 
 
 @router.get("/budgets", response_class=HTMLResponse)
