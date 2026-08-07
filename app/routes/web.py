@@ -10,7 +10,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from ..database import get_db
-from ..deps import get_current_user
+from ..deps import get_web_user
 from ..models import Account, Budget, Category, Passkey, Transaction, User
 from ..ui import templates
 
@@ -22,7 +22,7 @@ def _money(value) -> float:
 
 
 @router.get("/", response_class=HTMLResponse)
-def dashboard(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def dashboard(request: Request, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     now = datetime.date.today()
     month_start = now.replace(day=1)
     month_end = (month_start.replace(month=month_start.month % 12 + 1, day=1) - datetime.timedelta(days=1)) \
@@ -60,7 +60,7 @@ def dashboard(request: Request, user: User = Depends(get_current_user), db: Sess
 
 
 @router.get("/transactions", response_class=HTMLResponse)
-def transactions_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def transactions_page(request: Request, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     txs = (
         db.query(Transaction)
         .filter(Transaction.user_id == user.id)
@@ -84,7 +84,7 @@ def transaction_create(
     category_id: str = Form(""),
     account_id: str = Form(""),
     note: str = Form(""),
-    user: User = Depends(get_current_user),
+    user: User = Depends(get_web_user),
     db: Session = Depends(get_db),
 ):
     try:
@@ -108,7 +108,7 @@ def transaction_create(
 
 
 @router.post("/transactions/{tx_id}/delete")
-def transaction_delete(tx_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def transaction_delete(tx_id: str, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     tx = db.get(Transaction, tx_id)
     if tx and tx.user_id == user.id:
         db.delete(tx)
@@ -119,7 +119,7 @@ def transaction_delete(tx_id: str, user: User = Depends(get_current_user), db: S
 @router.post("/categories")
 def category_create(
     name: str = Form(...), type: str = Form("expense"),
-    user: User = Depends(get_current_user), db: Session = Depends(get_db),
+    user: User = Depends(get_web_user), db: Session = Depends(get_db),
 ):
     name = name.strip()
     if name:
@@ -133,7 +133,7 @@ def category_create(
 @router.post("/accounts")
 def account_create(
     name: str = Form(...),
-    user: User = Depends(get_current_user), db: Session = Depends(get_db),
+    user: User = Depends(get_web_user), db: Session = Depends(get_db),
 ):
     name = name.strip()
     if name:
@@ -145,7 +145,7 @@ def account_create(
 
 
 @router.get("/budgets", response_class=HTMLResponse)
-def budgets_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def budgets_page(request: Request, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     now = datetime.date.today()
     month = now.strftime("%Y-%m")
     budgets = (
@@ -175,7 +175,7 @@ def budgets_page(request: Request, user: User = Depends(get_current_user), db: S
 @router.post("/budgets")
 def budget_create(
     category_id: str = Form(...), limit: str = Form(...),
-    user: User = Depends(get_current_user), db: Session = Depends(get_db),
+    user: User = Depends(get_web_user), db: Session = Depends(get_db),
 ):
     try:
         limit_value = float(limit.replace(".", "").replace(",", "."))
@@ -197,7 +197,7 @@ def budget_create(
 
 
 @router.post("/budgets/{budget_id}/delete")
-def budget_delete(budget_id: str, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def budget_delete(budget_id: str, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     b = db.get(Budget, budget_id)
     if b and b.user_id == user.id:
         db.delete(b)
@@ -209,7 +209,7 @@ def budget_delete(budget_id: str, user: User = Depends(get_current_user), db: Se
 def reports_page(
     request: Request,
     month: str = "",
-    user: User = Depends(get_current_user),
+    user: User = Depends(get_web_user),
     db: Session = Depends(get_db),
 ):
     now = datetime.date.today()
@@ -240,7 +240,7 @@ def reports_page(
 
 
 @router.get("/export")
-def export_csv(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def export_csv(user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     txs = (
         db.query(Transaction)
         .filter(Transaction.user_id == user.id)
@@ -265,7 +265,7 @@ def export_csv(user: User = Depends(get_current_user), db: Session = Depends(get
 
 
 @router.get("/settings", response_class=HTMLResponse)
-def settings_page(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def settings_page(request: Request, user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     passkeys = db.query(Passkey).filter(Passkey.user_id == user.id).all()
     totp_qr = None
     if user.totp_enabled:
@@ -274,7 +274,7 @@ def settings_page(request: Request, user: User = Depends(get_current_user), db: 
 
 
 @router.get("/settings/totp/qr")
-def totp_qr(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def totp_qr(user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     if not user.totp_secret:
         user.totp_secret = pyotp.random_base32()
         db.commit()
@@ -289,7 +289,7 @@ def totp_qr(user: User = Depends(get_current_user), db: Session = Depends(get_db
 @router.post("/settings/totp/enable")
 def totp_enable(
     code: str = Form(...),
-    user: User = Depends(get_current_user),
+    user: User = Depends(get_web_user),
     db: Session = Depends(get_db),
 ):
     if not user.totp_secret or not pyotp.TOTP(user.totp_secret).verify(code.strip()):
@@ -300,7 +300,7 @@ def totp_enable(
 
 
 @router.post("/settings/totp/disable")
-def totp_disable(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+def totp_disable(user: User = Depends(get_web_user), db: Session = Depends(get_db)):
     user.totp_enabled = False
     user.totp_secret = None
     db.commit()
