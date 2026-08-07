@@ -54,6 +54,8 @@ def _find_or_create_account(db: Session, user: User, name: str) -> Account:
 
 
 class TransactionCreate(BaseModel):
+    model_config = {"extra": "forbid"}
+
     date: datetime.date
     type: str = Field(pattern="^(income|expense)$")
     amount: float = Field(gt=0)
