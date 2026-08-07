@@ -84,6 +84,7 @@ Catatan penting dari pengalaman deploy:
 - `config.py` memakai `extra="ignore"` supaya env Docker (`DB_PASSWORD`, `DOMAIN`, dll) tidak menolak Settings
 - Jangan pernah dua postgres memakai volume yang sama; stack Portainer memakai volume external `financial-tracker_pgdata`
 - Update aplikasi: build image baru (langkah 2), lalu update stack di Portainer (ganti `image: financial-tracker-app:latest` tetap, container recreate)
+- HTTP/HTTPS otomatis via `scripts/start.sh`: isi `SSL_CERTFILE` + `SSL_KEYFILE` untuk HTTPS langsung, kosongkan untuk HTTP (akses normal via Cloudflare Tunnel tetap HTTPS di edge)
 
 ## API
 
