@@ -3,7 +3,8 @@
 {% block content %}
 <div class="row g-3">
   <div class="col-lg-6">
-    <div class="card"><div class="card-header">User</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-users"></i> User</h3></div>
       <div class="card-body">
         {% if request.query_params.get('error') == 'exists' %}<div class="alert alert-warning">Email sudah terdaftar</div>{% endif %}
         {% if request.query_params.get('error') == 'missing' %}<div class="alert alert-warning">Lengkapi email & password</div>{% endif %}
@@ -17,7 +18,7 @@
               <td>
                 {% if not u.is_admin %}
                 <form method="post" action="/admin/users/{{ u.id }}/delete" onsubmit="return confirm('Hapus user ini beserta semua datanya?')">
-                  <button class="btn btn-sm btn-outline-danger">Hapus</button>
+                  <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
                 </form>
                 {% endif %}
               </td>
@@ -28,13 +29,14 @@
         <form method="post" action="/admin/users" class="d-flex gap-2">
           <input type="email" name="email" class="form-control" placeholder="email@contoh.com" required>
           <input type="password" name="password" class="form-control" placeholder="password" required>
-          <button class="btn btn-primary">Tambah</button>
+          <button class="btn btn-primary"><i class="fa-solid fa-plus"></i></button>
         </form>
       </div>
     </div>
   </div>
   <div class="col-lg-6">
-    <div class="card"><div class="card-header">API keys</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-key"></i> API keys</h3></div>
       <div class="card-body">
         {% if new_key %}
         <div class="alert alert-success">
@@ -53,7 +55,7 @@
               <td>
                 {% if not k.revoked %}
                 <form method="post" action="/admin/api-keys/{{ k.id }}/revoke" onsubmit="return confirm('Revoke key ini?')">
-                  <button class="btn btn-sm btn-outline-danger">Revoke</button>
+                  <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-ban"></i></button>
                 </form>
                 {% endif %}
               </td>
@@ -63,7 +65,7 @@
         </table>
         <form method="post" action="/admin/api-keys" class="d-flex gap-2">
           <input type="text" name="name" class="form-control" placeholder="Nama key (mis: bot telegram)" required>
-          <button class="btn btn-primary">Buat</button>
+          <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Buat</button>
         </form>
       </div>
     </div>

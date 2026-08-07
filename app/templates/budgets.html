@@ -3,7 +3,8 @@
 {% block content %}
 <div class="row g-3">
   <div class="col-lg-4">
-    <div class="card"><div class="card-header">Tambah budget {{ month }}</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Tambah budget {{ month }}</h3></div>
       <div class="card-body">
         {% if request.query_params.get('error') == 'limit' %}<div class="alert alert-danger">Limit tidak valid</div>{% endif %}
         <form method="post" action="/budgets">
@@ -13,13 +14,14 @@
             </select>
           </div>
           <div class="mb-3"><label class="form-label">Limit (Rp)</label><input type="text" name="limit" class="form-control" inputmode="decimal" placeholder="1000000" required></div>
-          <button class="btn btn-primary w-100">Simpan</button>
+          <button class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i> Simpan</button>
         </form>
       </div>
     </div>
   </div>
   <div class="col-lg-8">
-    <div class="card"><div class="card-header">Progress budget {{ month }}</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Progress budget {{ month }}</h3></div>
       <div class="card-body">
         {% for b in budgets %}
           {% set s = spent.get(b.category_id, 0) %}
@@ -34,7 +36,7 @@
                    style="width: {{ [pct, 100]|min }}%"></div>
             </div>
             <form method="post" action="/budgets/{{ b.id }}/delete" class="mt-1">
-              <button class="btn btn-sm btn-outline-danger">Hapus</button>
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Hapus</button>
             </form>
           </div>
         {% else %}

@@ -2,28 +2,41 @@
 {% block title %}Dashboard - Finance Tracker{% endblock %}
 {% block content %}
 <div class="row g-3 mb-4">
-  <div class="col-6 col-md-3"><div class="card"><div class="card-body text-center">
-    <div class="text-secondary small">Pemasukan</div><div class="fs-5 text-success">{{ income|rupiah }}</div>
-  </div></div></div>
-  <div class="col-6 col-md-3"><div class="card"><div class="card-body text-center">
-    <div class="text-secondary small">Pengeluaran</div><div class="fs-5 text-danger">{{ expense|rupiah }}</div>
-  </div></div></div>
-  <div class="col-6 col-md-3"><div class="card"><div class="card-body text-center">
-    <div class="text-secondary small">Saldo bulan ini</div><div class="fs-5">{{ balance|rupiah }}</div>
-  </div></div></div>
-  <div class="col-6 col-md-3"><div class="card"><div class="card-body text-center">
-    <div class="text-secondary small">Bulan</div><div class="fs-5">{{ month }}</div>
-  </div></div></div>
+  <div class="col-6 col-md-3">
+    <div class="small-box bg-success">
+      <div class="inner"><h3>{{ income|rupiah }}</h3><p>Pemasukan</p></div>
+      <div class="icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="small-box bg-danger">
+      <div class="inner"><h3>{{ expense|rupiah }}</h3><p>Pengeluaran</p></div>
+      <div class="icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="small-box bg-primary">
+      <div class="inner"><h3>{{ balance|rupiah }}</h3><p>Saldo bulan ini</p></div>
+      <div class="icon"><i class="fa-solid fa-scale-balanced"></i></div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="small-box bg-info">
+      <div class="inner"><h3>{{ month }}</h3><p>Periode</p></div>
+      <div class="icon"><i class="fa-solid fa-calendar"></i></div>
+    </div>
+  </div>
 </div>
 
 <div class="row g-3">
   <div class="col-md-6">
-    <div class="card"><div class="card-header">Pengeluaran per kategori</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Pengeluaran per kategori</h3></div>
       <div class="card-body">
         <canvas id="catChart" height="220"></canvas>
-        <ul class="list-group list-group-flush mt-3 bg-transparent">
+        <ul class="list-group list-group-flush mt-3">
           {% for name, total in by_category.items() %}
-          <li class="list-group-item bg-transparent d-flex justify-content-between">
+          <li class="list-group-item d-flex justify-content-between">
             <span>{{ name }}</span><span>{{ total|rupiah }}</span>
           </li>
           {% endfor %}
@@ -32,7 +45,8 @@
     </div>
   </div>
   <div class="col-md-6">
-    <div class="card"><div class="card-header">Transaksi terakhir</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Transaksi terakhir</h3></div>
       <div class="card-body p-0">
         <table class="table table-sm mb-0">
           <thead><tr><th>Tanggal</th><th>Kategori</th><th>Akun</th><th class="text-end">Jumlah</th></tr></thead>
@@ -42,9 +56,7 @@
               <td>{{ t.date }}</td>
               <td>{{ t.category.name if t.category else "-" }}</td>
               <td>{{ t.account.name if t.account else "-" }}</td>
-              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">
-                {{ (t.amount)|rupiah }}
-              </td>
+              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
             </tr>
           {% else %}
             <tr><td colspan="4" class="text-center text-secondary">Belum ada transaksi</td></tr>
@@ -61,10 +73,12 @@
 <script>
 const labels = {{ by_category.keys()|list|tojson }};
 const values = {{ by_category.values()|list|tojson }};
+const theme = document.documentElement.getAttribute('data-bs-theme');
+const labelColor = theme === 'light' ? '#333' : '#e0e0e0';
 new Chart(document.getElementById('catChart'), {
   type: 'doughnut',
   data: { labels: labels, datasets: [{ data: values, backgroundColor: ['#e94560','#0078d4','#00c853','#ffc107','#9c27b0','#ff7043','#26c6da','#8d6e63'] }] },
-  options: { plugins: { legend: { labels: { color: '#e0e0e0' } } } }
+  options: { plugins: { legend: { labels: { color: labelColor } } } }
 });
 </script>
 {% endblock %}

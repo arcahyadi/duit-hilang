@@ -3,7 +3,8 @@
 {% block content %}
 <div class="row g-3">
   <div class="col-lg-4">
-    <div class="card"><div class="card-header">Tambah transaksi</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Tambah transaksi</h3></div>
       <div class="card-body">
         {% if request.query_params.get('error') == 'amount' %}<div class="alert alert-danger">Jumlah tidak valid</div>{% endif %}
         <form method="post" action="/transactions">
@@ -25,28 +26,30 @@
             </select>
           </div>
           <div class="mb-3"><label class="form-label">Catatan</label><input type="text" name="note" class="form-control"></div>
-          <button class="btn btn-primary w-100">Simpan</button>
+          <button class="btn btn-primary w-100"><i class="fa-solid fa-plus"></i> Simpan</button>
         </form>
       </div>
     </div>
-    <div class="card mt-3"><div class="card-header">Tambah cepat</div>
+    <div class="card mt-3">
+      <div class="card-header"><h3 class="card-title">Tambah cepat</h3></div>
       <div class="card-body">
         <form method="post" action="/categories" class="mb-2 d-flex gap-2">
           <input type="text" name="name" class="form-control" placeholder="Kategori baru" required>
           <select name="type" class="form-select w-auto"><option value="expense">Keluar</option><option value="income">Masuk</option></select>
-          <button class="btn btn-outline-light">Tambah</button>
+          <button class="btn btn-outline-secondary"><i class="fa-solid fa-plus"></i></button>
         </form>
         <form method="post" action="/accounts" class="d-flex gap-2">
           <input type="text" name="name" class="form-control" placeholder="Akun baru (GoPay, BCA...)" required>
-          <button class="btn btn-outline-light">Tambah</button>
+          <button class="btn btn-outline-secondary"><i class="fa-solid fa-plus"></i></button>
         </form>
       </div>
     </div>
   </div>
   <div class="col-lg-8">
-    <div class="card"><div class="card-header">Daftar transaksi</div>
+    <div class="card">
+      <div class="card-header"><h3 class="card-title">Daftar transaksi</h3></div>
       <div class="card-body p-0">
-        <table class="table table-sm mb-0">
+        <table class="table table-sm table-striped mb-0">
           <thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Akun</th><th>Catatan</th><th class="text-end">Jumlah</th><th></th></tr></thead>
           <tbody>
           {% for t in transactions %}
@@ -57,7 +60,7 @@
               <td>{{ t.account.name if t.account else '-' }}</td>
               <td>{{ t.note or '-' }}</td>
               <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
-              <td><form method="post" action="/transactions/{{ t.id }}/delete" onsubmit="return confirm('Hapus transaksi ini?')"><button class="btn btn-sm btn-outline-danger">Hapus</button></form></td>
+              <td><form method="post" action="/transactions/{{ t.id }}/delete" onsubmit="return confirm('Hapus transaksi ini?')"><button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button></form></td>
             </tr>
           {% else %}
             <tr><td colspan="7" class="text-center text-secondary">Belum ada transaksi</td></tr>
