@@ -88,16 +88,67 @@ Catatan penting dari pengalaman deploy:
 
 ## API
 
-Autentikasi: header `X-API-Key: ft_...`
+Autentikasi: header `X-API-Key: ft_...`. Key dibuat oleh admin di halaman Admin.
+Key bisa **Read-only** (default) atau **Read+Write** (centang "Write" saat membuat).
 
 ```
-GET /api/v1/transactions?from=2026-08-01&to=2026-08-31&type=expense
-GET /api/v1/transactions/{id}
-GET /api/v1/summary?month=2026-08
-GET /api/v1/categories
-GET /api/v1/accounts
-GET /api/v1/budgets?month=2026-08
+GET  /api/v1/transactions?from=2026-08-01&to=2026-08-31&type=expense
+GET  /api/v1/transactions/{id}
+GET  /api/v1/summary?month=2026-08
+GET  /api/v1/categories
+GET  /api/v1/accounts
+GET  /api/v1/budgets?month=2026-08
+POST /api/v1/transactions        # butuh key Read+Write
 ```
+
+### POST /api/v1/transactions
+
+Body (JSON). Kategori/akun bisa kirim nama (autocreate, case-insensitive:
+`MaKan`/`makan` → pakai `Makan` yang sudah ada; kalau belum ada, dibuat dengan
+kapital persis kiriman) atau ID.
+
+```json
+{
+  "date": "2026-08-07",
+  "type": "expense",
+  "amount": 150000,
+  "category": "Makan",
+  "account": "GoPay",
+  "note": "dari telegram"
+}
+```
+
+Respons `201`:
+
+```json
+{
+  "id": "...",
+  "date": "2026-08-07",
+  "type": "expense",
+  "amount": 150000.0,
+  "category": "Makan",
+  "category_id": "...",
+  "account": "GoPay",
+  "account_id": "...",
+  "note": "dari telegram"
+}
+```
+
+Error: `401` key salah, `403` key read-only, `422` validasi (date invalid,
+type bukan income/expense, amount <= 0, kategori & category_id dikirim
+bersamaan), `429` terlalu banyak request.
+
+Contoh curl:
+
+```bash
+curl -X POST https://domain/api/v1/transactions \
+  -H "X-API-Key: ft_..." \
+  -H "Content-Type: application/json" \
+  -d '{"date":"2026-08-07","type":"expense","amount":150000,"category":"Makan","account":"GoPay","note":"dari telegram"}'
+```
+
+Contoh n8n: HTTP Request node → method POST, URL `https://domain/api/v1/transactions`,
+header `X-API-Key`, body JSON dari data Telegram bot.
 
 ## Struktur
 

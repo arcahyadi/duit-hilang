@@ -51,3 +51,18 @@ def get_api_user(request: Request, db: Session = Depends(get_db)) -> User:
     api_key.last_used_at = datetime.datetime.now(datetime.timezone.utc)
     db.commit()
     return api_key.user
+
+
+def require_write_api_key(request: Request, db: Session = Depends(get_db)) -> User:
+    """API key yang boleh menulis (write access). Admin yang menentukan saat membuat key."""
+    key = request.headers.get("X-API-Key")
+    if not key:
+        raise HTTPException(status_code=401, detail="Missing X-API-Key header")
+    api_key = db.query(ApiKey).filter(ApiKey.key_hash == hash_api_key(key)).first()
+    if not api_key or api_key.revoked:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+    if not api_key.write_access:
+        raise HTTPException(status_code=403, detail="API key does not have write access")
+    api_key.last_used_at = datetime.datetime.now(datetime.timezone.utc)
+    db.commit()
+    return api_key.user

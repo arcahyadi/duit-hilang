@@ -45,11 +45,18 @@
         </div>
         {% endif %}
         <table class="table table-sm">
-          <thead><tr><th>Nama</th><th>Status</th><th>Dibuat</th><th></th></tr></thead>
+          <thead><tr><th>Nama</th><th>Scope</th><th>Status</th><th>Dibuat</th><th></th></tr></thead>
           <tbody>
           {% for k in api_keys %}
             <tr>
               <td>{{ k.name }}</td>
+              <td>
+                {% if k.write_access %}
+                  <span class="badge text-bg-warning"><i class="fa-solid fa-pen"></i> Read+Write</span>
+                {% else %}
+                  <span class="badge text-bg-secondary"><i class="fa-solid fa-eye"></i> Read-only</span>
+                {% endif %}
+              </td>
               <td>{{ 'Revoked' if k.revoked else 'Aktif' }}</td>
               <td>{{ k.created_at.date() if k.created_at }}</td>
               <td>
@@ -63,8 +70,12 @@
           {% endfor %}
           </tbody>
         </table>
-        <form method="post" action="/admin/api-keys" class="d-flex gap-2">
+        <form method="post" action="/admin/api-keys" class="d-flex gap-2 align-items-center">
           <input type="text" name="name" class="form-control" placeholder="Nama key (mis: bot telegram)" required>
+          <div class="form-check form-switch text-nowrap">
+            <input class="form-check-input" type="checkbox" role="switch" id="writeAccess" name="write_access">
+            <label class="form-check-label small" for="writeAccess">Write</label>
+          </div>
           <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Buat</button>
         </form>
       </div>

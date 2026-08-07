@@ -1,12 +1,14 @@
 import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from pydantic import BaseModel, Field
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
 from ..database import get_db
-from ..deps import get_api_user
+from ..deps import get_api_user, require_write_api_key
 from ..models import Account, Budget, Category, Transaction, User
+from ..security import rate_limit
 
 router = APIRouter(prefix="/api/v1")
 
@@ -20,6 +22,100 @@ def _parse_date(value: str, field: str) -> datetime.date:
         return datetime.date.fromisoformat(value)
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid date for {field}: {value}")
+
+
+def _find_or_create_category(db: Session, user: User, name: str, type: str) -> Category:
+    """Case-insensitive match; create if missing. Existing capitalization is preserved."""
+    name = name.strip()
+    existing = db.query(Category).filter(
+        Category.user_id == user.id,
+        func.lower(Category.name) == name.lower(),
+    ).first()
+    if existing:
+        return existing
+    cat = Category(user_id=user.id, name=name, type=type)
+    db.add(cat)
+    db.flush()
+    return cat
+
+
+def _find_or_create_account(db: Session, user: User, name: str) -> Account:
+    name = name.strip()
+    existing = db.query(Account).filter(
+        Account.user_id == user.id,
+        func.lower(Account.name) == name.lower(),
+    ).first()
+    if existing:
+        return existing
+    acc = Account(user_id=user.id, name=name)
+    db.add(acc)
+    db.flush()
+    return acc
+
+
+class TransactionCreate(BaseModel):
+    date: datetime.date
+    type: str = Field(pattern="^(income|expense)$")
+    amount: float = Field(gt=0)
+    category: str | None = None
+    category_id: str | None = None
+    account: str | None = None
+    account_id: str | None = None
+    note: str | None = Field(default=None, max_length=500)
+
+
+def _tx_dict(t: Transaction) -> dict:
+    return {
+        "id": t.id, "date": t.date.isoformat(), "type": t.type, "amount": _money(t.amount),
+        "category": t.category.name if t.category else None, "category_id": t.category_id,
+        "account": t.account.name if t.account else None, "account_id": t.account_id, "note": t.note,
+    }
+
+
+@router.post("/transactions", status_code=201)
+def create_transaction(
+    payload: TransactionCreate,
+    request: Request,
+    user: User = Depends(require_write_api_key),
+    db: Session = Depends(get_db),
+):
+    client_ip = request.client.host if request.client else "unknown"
+    if not rate_limit(f"write-api:{user.id}", limit=60, window_seconds=60) or not rate_limit(
+        f"write-api-ip:{client_ip}", limit=120, window_seconds=60
+    ):
+        raise HTTPException(status_code=429, detail="Too many write requests")
+
+    if payload.category_id and payload.category:
+        raise HTTPException(status_code=422, detail="Provide either category or category_id, not both")
+
+    category = None
+    if payload.category_id:
+        category = db.get(Category, payload.category_id)
+        if not category or category.user_id != user.id:
+            raise HTTPException(status_code=422, detail="Unknown category_id")
+    elif payload.category:
+        category = _find_or_create_category(db, user, payload.category, payload.type)
+
+    account = None
+    if payload.account_id and payload.account:
+        raise HTTPException(status_code=422, detail="Provide either account or account_id, not both")
+    if payload.account_id:
+        account = db.get(Account, payload.account_id)
+        if not account or account.user_id != user.id:
+            raise HTTPException(status_code=422, detail="Unknown account_id")
+    elif payload.account:
+        account = _find_or_create_account(db, user, payload.account)
+
+    tx = Transaction(
+        user_id=user.id, date=payload.date, type=payload.type, amount=payload.amount,
+        category_id=category.id if category else None,
+        account_id=account.id if account else None,
+        note=payload.note.strip() if payload.note else None,
+    )
+    db.add(tx)
+    db.commit()
+    db.refresh(tx)
+    return _tx_dict(tx)
 
 
 @router.get("/transactions")

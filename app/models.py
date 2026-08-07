@@ -92,6 +92,7 @@ class ApiKey(Base):
     user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     name: Mapped[str] = mapped_column(String(100))
     key_hash: Mapped[str] = mapped_column(String(255))
+    write_access: Mapped[bool] = mapped_column(Boolean, default=False)
     last_used_at: Mapped[datetime.datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     revoked: Mapped[bool] = mapped_column(Boolean, default=False)

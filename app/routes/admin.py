@@ -54,6 +54,7 @@ def user_delete(
 def api_key_create(
     request: Request,
     name: str = Form(...),
+    write_access: str = Form(""),
     user: User = Depends(require_admin),
     db: Session = Depends(get_db),
 ):
@@ -61,7 +62,8 @@ def api_key_create(
     if not name:
         return RedirectResponse("/admin?error=missing", status_code=303)
     key = generate_api_key()
-    db.add(ApiKey(user_id=user.id, name=name, key_hash=hash_api_key(key)))
+    db.add(ApiKey(user_id=user.id, name=name, key_hash=hash_api_key(key),
+                  write_access=write_access == "on"))
     db.commit()
     users = db.query(User).order_by(User.created_at).all()
     api_keys = db.query(ApiKey).order_by(ApiKey.created_at.desc()).all()
