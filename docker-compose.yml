@@ -2,6 +2,8 @@ services:
   app:
     build: .
     restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"  # hanya localhost; cloudflared di host yang expose ke publik
     environment:
       DATABASE_URL: postgresql+psycopg://finance:${DB_PASSWORD}@db:5432/finance
       SECRET_KEY: ${SECRET_KEY}
@@ -31,22 +33,8 @@ services:
       retries: 10
     networks: [internal]
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    networks: [internal]
-
 networks:
   internal:
 
 volumes:
   pgdata:
-  caddy_data:
-  caddy_config:

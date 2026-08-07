@@ -4,7 +4,7 @@ Aplikasi pencatat keuangan pribadi berbasis web untuk 2 user (admin + 1 user), d
 
 ## Stack
 
-FastAPI + PostgreSQL + Jinja2/Bootstrap/Chart.js, deploy Docker Compose + Caddy.
+FastAPI + PostgreSQL + Jinja2/Bootstrap/Chart.js, deploy Docker Compose + Cloudflare Tunnel (cloudflared di host).
 
 ## Fitur
 
@@ -33,16 +33,50 @@ Self-check:
 .venv/bin/python tests/self_check.py
 ```
 
-## Deploy (VPS)
+## Deploy (VPS + Cloudflare Tunnel)
+
+Akses publik lewat Cloudflare Tunnel; cloudflared jalan di host VPS, app hanya listen di localhost.
 
 ```bash
-cp .env.example .env   # isi semua nilai
-docker compose up -d --build
+# 1. Siapkan .env di VPS (dari .env.example)
+cp .env.example .env   # isi DOMAIN, SECRET_KEY, DB_PASSWORD, ADMIN_*
 ```
 
-- Caddy otomatis ambil sertifikat HTTPS untuk `DOMAIN` (arahkan DNS A ke VPS dulu)
+```bash
+# 2. Jalankan app + database
+docker compose up -d --build
+# migration otomatis saat container start; cek: curl http://localhost:8000/docs
+```
+
+```bash
+# 3. Pasang cloudflared di host (bukan di compose)
+#    https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/downloads/
+cloudflared tunnel login                          # pilih domain di dashboard
+cloudflared tunnel create finance                 # catat Tunnel ID
+cloudflared tunnel route dns finance <DOMAIN>     # buat DNS CNAME
+```
+
+```bash
+# 4. Buat /etc/cloudflared/config.yml
+tunnel: <Tunnel-ID>
+credentials-file: /root/.cloudflared/<Tunnel-ID>.json
+
+ingress:
+  - hostname: <DOMAIN>
+    service: http://localhost:8000
+  - service: http_status:404
+```
+
+```bash
+# 5. Jalankan sebagai service
+cloudflared service install
+systemctl start cloudflared
+# buka https://<DOMAIN>
+```
+
 - Migrasi DB jalan otomatis saat container start
-- Backup: jalankan `scripts/backup.sh` via cron di host, atau di dalam container `db`
+- Backup: `scripts/backup.sh` via cron di host, atau di dalam container `db`
+- Update aplikasi: `git pull && docker compose up -d --build`
 
 ## API
 

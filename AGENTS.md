@@ -14,7 +14,7 @@ pemilik (admin) + 1 user lain. Data setiap user terpisah total.
 - Frontend: Jinja2 templates + Bootstrap + Chart.js, tanpa framework JS
 - Auth: password Argon2, session cookie HttpOnly+Secure+SameSite=Strict,
   rate limiting, 2FA TOTP opsional, passkey (WebAuthn)
-- Deploy: Docker Compose + Caddy (auto-HTTPS) di VPS
+- Deploy: Docker Compose di VPS + Cloudflare Tunnel (cloudflared di host, app listen localhost saja)
 - Backup: cron pg_dump ke tempat terpisah
 - API: read-only, autentikasi via API key (X-API-Key) yang hanya bisa
   dibuat oleh admin, docs otomatis di /docs
