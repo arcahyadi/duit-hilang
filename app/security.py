@@ -55,3 +55,9 @@ def rate_limit(key: str, limit: int, window_seconds: int = 300) -> bool:
         return False
     _ratelimit[key] = (start, count + 1)
     return True
+
+
+def check_secret_key() -> None:
+    """Fail fast in production if SECRET_KEY is the insecure default."""
+    if settings.cookie_secure and settings.secret_key == "change-me":
+        raise RuntimeError("SECRET_KEY must be set when COOKIE_SECURE=true (production)")

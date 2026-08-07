@@ -44,7 +44,10 @@ def login(
     totp_code: str | None = Form(None),
     db: Session = Depends(get_db),
 ):
-    if not rate_limit(f"login:{email.lower()}", limit=10, window_seconds=300):
+    client_ip = request.client.host if request.client else "unknown"
+    if not rate_limit(f"login:{email.lower()}", limit=10, window_seconds=300) or not rate_limit(
+        f"login-ip:{client_ip}", limit=20, window_seconds=300
+    ):
         return templates.TemplateResponse(
             request, "login.html", {"error": "Terlalu banyak percobaan. Coba lagi nanti."}, status_code=429
         )

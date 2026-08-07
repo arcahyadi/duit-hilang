@@ -1,3 +1,5 @@
+import datetime
+
 from fastapi import Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
@@ -46,5 +48,6 @@ def get_api_user(request: Request, db: Session = Depends(get_db)) -> User:
     api_key = db.query(ApiKey).filter(ApiKey.key_hash == hash_api_key(key)).first()
     if not api_key or api_key.revoked:
         raise HTTPException(status_code=401, detail="Invalid API key")
-    api_key.last_used_at = None  # updated on commit by caller
+    api_key.last_used_at = datetime.datetime.now(datetime.timezone.utc)
+    db.commit()
     return api_key.user

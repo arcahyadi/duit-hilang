@@ -1,6 +1,6 @@
 import datetime
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy import func
 from sqlalchemy.orm import Session, joinedload
 
@@ -15,6 +15,13 @@ def _money(value) -> float:
     return float(value or 0)
 
 
+def _parse_date(value: str, field: str) -> datetime.date:
+    try:
+        return datetime.date.fromisoformat(value)
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid date for {field}: {value}")
+
+
 @router.get("/transactions")
 def list_transactions(
     from_date: str | None = Query(None, alias="from"),
@@ -27,9 +34,9 @@ def list_transactions(
 ):
     q = db.query(Transaction).filter(Transaction.user_id == user.id)
     if from_date:
-        q = q.filter(Transaction.date >= datetime.date.fromisoformat(from_date))
+        q = q.filter(Transaction.date >= _parse_date(from_date, "from"))
     if to_date:
-        q = q.filter(Transaction.date <= datetime.date.fromisoformat(to_date))
+        q = q.filter(Transaction.date <= _parse_date(to_date, "to"))
     if category_id:
         q = q.filter(Transaction.category_id == category_id)
     if account_id:

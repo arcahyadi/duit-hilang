@@ -91,12 +91,13 @@ def transaction_create(
         amount_value = float(amount.replace(".", "").replace(",", "."))
         if amount_value <= 0:
             raise ValueError
+        tx_date = datetime.date.fromisoformat(date)
     except ValueError:
         return RedirectResponse("/transactions?error=amount", status_code=303)
 
     db.add(Transaction(
         user_id=user.id,
-        date=datetime.date.fromisoformat(date),
+        date=tx_date,
         type=type if type in ("income", "expense") else "expense",
         amount=amount_value,
         category_id=category_id or None,
