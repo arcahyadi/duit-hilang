@@ -5,7 +5,7 @@
 # - Volume pgdata external: memakai volume compose yang sudah ada, data tidak dobel
 services:
   app:
-    image: financial-tracker-app:latest
+    image: duit-hilang-app:latest
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"

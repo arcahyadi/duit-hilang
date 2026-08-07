@@ -1,6 +1,7 @@
 services:
   app:
     build: .
+    image: duit-hilang-app:latest
     restart: unless-stopped
     ports:
       - "127.0.0.1:8000:8000"  # hanya localhost; cloudflared di host yang expose ke publik
