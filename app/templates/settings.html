@@ -1,40 +1,41 @@
 {% extends "base.html" %}
 {% block title %}Settings - Finance Tracker{% endblock %}
+{% block page_title %}Settings{% endblock %}
 {% block content %}
-<div class="row g-3">
+<div class="row g-4">
   <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Keamanan</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-shield-halved me-2"></i>Keamanan</span></div>
       <div class="card-body">
-        <h6><i class="fa-solid fa-shield-halved"></i> 2FA (TOTP)</h6>
+        <h6 class="fw-semibold mb-3"><i class="fa-solid fa-qrcode me-2"></i>2FA (TOTP)</h6>
         {% if user.totp_enabled %}
-          <p class="text-success"><i class="fa-solid fa-circle-check"></i> 2FA aktif.</p>
+          <p class="text-success mb-3"><i class="fa-solid fa-circle-check me-1"></i>2FA aktif.</p>
           <form method="post" action="/settings/totp/disable" onsubmit="return confirm('Matikan 2FA?')">
-            <button class="btn btn-outline-danger"><i class="fa-solid fa-shield"></i> Matikan 2FA</button>
+            <button class="btn btn-outline-danger"><i class="fa-solid fa-shield me-1"></i>Matikan 2FA</button>
           </form>
         {% else %}
-          {% if request.query_params.get('error') == 'totp' %}<div class="alert alert-danger">Kode salah, coba lagi</div>{% endif %}
-          <p>Scan QR dengan Google Authenticator / Authy, lalu masukkan kode 6 digit:</p>
-          <img src="/settings/totp/qr" alt="QR 2FA" class="img-fluid mb-2" style="max-width:200px">
+          {% if request.query_params.get('error') == 'totp' %}<div class="alert alert-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i>Kode salah, coba lagi</div>{% endif %}
+          <p class="text-secondary">Scan QR dengan Google Authenticator / Authy, lalu masukkan kode 6 digit:</p>
+          <img src="/settings/totp/qr" alt="QR 2FA" class="img-fluid mb-3" style="max-width:200px">
           <form method="post" action="/settings/totp/enable" class="d-flex gap-2">
-            <input type="text" name="code" class="form-control" inputmode="numeric" maxlength="6" placeholder="123456" required>
-            <button class="btn btn-primary"><i class="fa-solid fa-check"></i> Aktifkan</button>
+            <input type="text" name="code" class="form-control" inputmode="numeric" maxlength="6" placeholder="123456" required style="max-width:160px">
+            <button class="btn btn-primary"><i class="fa-solid fa-check me-1"></i>Aktifkan</button>
           </form>
         {% endif %}
         <hr>
-        <h6><i class="fa-solid fa-fingerprint"></i> Passkey</h6>
+        <h6 class="fw-semibold mb-3"><i class="fa-solid fa-fingerprint me-2"></i>Passkey</h6>
         {% for p in passkeys %}
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span><i class="fa-solid fa-key"></i> Passkey {{ p.credential_id[:8] }}…</span>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span><i class="fa-solid fa-key me-2 text-secondary"></i>Passkey {{ p.credential_id[:8] }}&hellip;</span>
             <form method="post" action="/auth/passkey/register/delete">
               <input type="hidden" name="credential_id" value="{{ p.credential_id }}">
-              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i> Hapus</button>
+              <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash me-1"></i>Hapus</button>
             </form>
           </div>
         {% else %}
-          <p class="text-secondary">Belum ada passkey terdaftar.</p>
+          <p class="text-secondary mb-3">Belum ada passkey terdaftar.</p>
         {% endfor %}
-        <button class="btn btn-outline-primary" onclick="registerPasskey()"><i class="fa-solid fa-fingerprint"></i> Daftarkan passkey baru</button>
+        <button class="btn btn-outline-secondary" onclick="registerPasskey()"><i class="fa-solid fa-fingerprint me-1"></i>Daftarkan passkey baru</button>
       </div>
     </div>
   </div>

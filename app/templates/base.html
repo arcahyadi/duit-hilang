@@ -1,259 +1,384 @@
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="dark" data-theme="dark">
+<html lang="id" data-bs-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Finance Tracker{% endblock %}</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta3/dist/css/adminlte.min.css">
   <style>
-    .brand-image { opacity: .9; }
-    .small-box { border-radius: .5rem; }
-    .small-box .inner h3 { font-size: 1.6rem; font-weight: 700; margin: 0; }
-    .small-box .inner p { font-size: .95rem; margin: .25rem 0 0; }
-    .small-box .small-box-icon { font-size: 3.5rem; }
-
-    /* ── Theme system ── */
-
-    /* Dark (default) */
-    :root[data-theme="dark"] {
-      --theme-name: "Dark";
-      --theme-primary: #0d6efd;
-      --theme-primary-rgb: 13,110,253;
-      --theme-accent: #3d8bfd;
-      --theme-sidebar-bg: #212529;
-      --theme-sidebar-color: #c2c7d0;
-      --theme-navbar-bg: #1a1e21;
-      --theme-card-bg: #2b3035;
-      --theme-card-border: #373b3e;
+    :root {
+      --sidebar-w: 260px;
+      --sidebar-collapsed-w: 72px;
+      --topbar-h: 60px;
+      --border-radius: 0.625rem;
+      --transition: 0.2s ease;
+      --accent: #3699ff;
+      --accent-light: rgba(54,153,255,0.1);
+      --success: #0bb783;
+      --danger: #f64e60;
+      --warning: #ffa800;
+      --info: #8950fc;
     }
 
-    /* Light */
-    :root[data-theme="light"] {
-      --theme-name: "Light";
-      --theme-primary: #0d6efd;
-      --theme-primary-rgb: 13,110,253;
-      --theme-accent: #0a58ca;
-      --theme-sidebar-bg: #f8f9fa;
-      --theme-sidebar-color: #212529;
-      --theme-navbar-bg: #ffffff;
-      --theme-card-bg: #ffffff;
-      --theme-card-border: #dee2e6;
+    /* Dark theme */
+    [data-bs-theme="dark"] {
+      --brand-bg: #1b1b2f;
+      --sidebar-bg: #1e1e2d;
+      --sidebar-hover: #2a2a3d;
+      --sidebar-active: #3699ff;
+      --sidebar-text: #a2a3b7;
+      --sidebar-heading: #6d6e80;
+      --topbar-bg: #1b1b2f;
+      --topbar-border: #2b2b3d;
+      --body-bg: #151521;
+      --card-bg: #1e1e2d;
+      --card-border: #2b2b3d;
+      --card-header-bg: #1b1b2f;
+      --text-primary: #e4e6ef;
+      --text-secondary: #a2a3b7;
+      --text-muted: #6d6e80;
     }
 
-    /* Ocean */
-    :root[data-theme="ocean"] {
-      --theme-name: "Ocean";
-      --theme-primary: #0dcaf0;
-      --theme-primary-rgb: 13,202,240;
-      --theme-accent: #31d2f2;
-      --theme-sidebar-bg: #0a2e3f;
-      --theme-sidebar-color: #b6e5f0;
-      --theme-navbar-bg: #0d3b4f;
-      --theme-card-bg: #143d52;
-      --theme-card-border: #1d5068;
+    /* Light theme */
+    [data-bs-theme="light"] {
+      --brand-bg: #1a1a2e;
+      --sidebar-bg: #1e1e2d;
+      --sidebar-hover: #2a2a3d;
+      --sidebar-text: #a2a3b7;
+      --sidebar-heading: #6d6e80;
+      --topbar-bg: #ffffff;
+      --topbar-border: #e4e6ef;
+      --body-bg: #f5f6fa;
+      --card-bg: #ffffff;
+      --card-border: #e4e6ef;
+      --card-header-bg: #fafbfc;
+      --text-primary: #181c32;
+      --text-secondary: #5e6278;
+      --text-muted: #a1a5b7;
     }
 
-    /* Forest */
-    :root[data-theme="forest"] {
-      --theme-name: "Forest";
-      --theme-primary: #198754;
-      --theme-primary-rgb: 25,135,84;
-      --theme-accent: #20c997;
-      --theme-sidebar-bg: #0a1f14;
-      --theme-sidebar-color: #a3d9b1;
-      --theme-navbar-bg: #0d2a1b;
-      --theme-card-bg: #143621;
-      --theme-card-border: #1e4a2e;
+    * { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--body-bg);
+      color: var(--text-primary);
+      margin: 0;
+      min-height: 100vh;
     }
 
-    /* Sunset */
-    :root[data-theme="sunset"] {
-      --theme-name: "Sunset";
-      --theme-primary: #fd7e14;
-      --theme-primary-rgb: 253,126,20;
-      --theme-accent: #ffc107;
-      --theme-sidebar-bg: #2b1a0a;
-      --theme-sidebar-color: #f5d5a8;
-      --theme-navbar-bg: #332010;
-      --theme-card-bg: #3d2818;
-      --theme-card-border: #523a22;
+    /* Sidebar */
+    .sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      z-index: 100;
+      display: flex; flex-direction: column;
+      transition: width var(--transition);
+      border-right: 1px solid var(--topbar-border);
+      overflow-x: hidden;
+    }
+    .sidebar.collapsed { width: var(--sidebar-collapsed-w); }
+    .sidebar.collapsed .brand-text,
+    .sidebar.collapsed .nav-label,
+    .sidebar.collapsed .sidebar-heading-text { display: none; }
+    .sidebar.collapsed .nav-link { justify-content: center; padding: 0.75rem; }
+    .sidebar.collapsed .nav-icon { margin-right: 0 !important; }
+
+    .brand {
+      display: flex; align-items: center; gap: 0.75rem;
+      padding: 0 1.25rem; height: var(--topbar-h);
+      background: var(--brand-bg);
+      flex-shrink: 0;
+    }
+    .brand-icon { font-size: 1.5rem; color: var(--accent); }
+    .brand-text { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+
+    .sidebar-nav { flex: 1; overflow-y: auto; padding: 0.5rem 0; }
+    .sidebar-heading {
+      padding: 0.75rem 1.25rem 0.25rem;
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--sidebar-heading); font-weight: 600;
+    }
+    .sidebar-heading-text { white-space: nowrap; }
+
+    .nav-list { list-style: none; padding: 0; margin: 0; }
+    .nav-link {
+      display: flex; align-items: center; gap: 0;
+      padding: 0.65rem 1.25rem; color: var(--sidebar-text);
+      text-decoration: none; font-size: 0.9rem;
+      transition: all var(--transition); white-space: nowrap;
+      border-left: 3px solid transparent;
+    }
+    .nav-link:hover { color: var(--text-primary); background: var(--sidebar-hover); }
+    .nav-link.active {
+      color: #fff; background: var(--accent-light);
+      border-left-color: var(--accent);
+    }
+    .nav-icon { font-size: 1.15rem; width: 1.5rem; text-align: center; margin-right: 0.6rem; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto; font-size: 0.7rem; padding: 0.15em 0.45em;
+      border-radius: 0.25rem;
     }
 
-    /* Midnight */
-    :root[data-theme="midnight"] {
-      --theme-name: "Midnight";
-      --theme-primary: #6f42c1;
-      --theme-primary-rgb: 111,66,193;
-      --theme-accent: #a98eda;
-      --theme-sidebar-bg: #1a112b;
-      --theme-sidebar-color: #c9b8e8;
-      --theme-navbar-bg: #221838;
-      --theme-card-bg: #2b1d44;
-      --theme-card-border: #3d2d5c;
+    /* Topbar */
+    .topbar {
+      position: fixed; top: 0; left: var(--sidebar-w); right: 0;
+      height: var(--topbar-h); background: var(--topbar-bg);
+      border-bottom: 1px solid var(--topbar-border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 1.5rem; z-index: 99;
+      transition: left var(--transition);
+    }
+    .sidebar.collapsed ~ .topbar { left: var(--sidebar-collapsed-w); }
+
+    .topbar-left { display: flex; align-items: center; gap: 0.75rem; }
+    .topbar-right { display: flex; align-items: center; gap: 0.75rem; }
+    .burger-btn {
+      background: none; border: none; color: var(--sidebar-text);
+      font-size: 1.25rem; cursor: pointer; padding: 0.25rem;
+      transition: color var(--transition);
+    }
+    .burger-btn:hover { color: var(--text-primary); }
+    .topbar-title { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
+    .theme-switch {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: var(--body-bg); border: 1px solid var(--card-border);
+      border-radius: 2rem; padding: 0.3rem 0.4rem; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .theme-switch:hover { border-color: var(--accent); }
+    .theme-switch-option {
+      width: 30px; height: 30px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem; transition: all var(--transition);
+      color: var(--text-muted);
+    }
+    .theme-switch-option.active {
+      background: var(--accent); color: #fff; box-shadow: 0 2px 6px rgba(54,153,255,0.3);
     }
 
-    /* Apply theme variables to AdminLTE elements */
-    .app-sidebar {
-      background-color: var(--theme-sidebar-bg) !important;
-      color: var(--theme-sidebar-color) !important;
+    .logout-btn {
+      background: var(--accent-light); color: var(--accent);
+      border: 1px solid transparent; padding: 0.4rem 0.75rem;
+      border-radius: var(--border-radius); font-size: 0.85rem;
+      cursor: pointer; transition: all var(--transition);
+      text-decoration: none; white-space: nowrap;
     }
-    .app-sidebar .nav-link { color: var(--theme-sidebar-color) !important; }
-    .app-sidebar .nav-link.active {
-      background-color: var(--theme-primary) !important;
-      color: #fff !important;
-    }
-    .app-sidebar .nav-link:hover:not(.active) {
-      background-color: color-mix(in srgb, var(--theme-primary) 20%, transparent) !important;
-    }
-    .app-sidebar .brand-link { color: var(--theme-sidebar-color) !important; }
+    .logout-btn:hover { background: var(--accent); color: #fff; }
 
-    .app-header {
-      background-color: var(--theme-navbar-bg) !important;
-      border-bottom: 1px solid var(--theme-card-border) !important;
+    /* Content */
+    .content {
+      margin-left: var(--sidebar-w); margin-top: var(--topbar-h);
+      padding: 1.5rem; min-height: calc(100vh - var(--topbar-h));
+      transition: margin-left var(--transition);
     }
+    .sidebar.collapsed ~ .topbar ~ .content,
+    .sidebar.collapsed ~ .content { margin-left: var(--sidebar-collapsed-w); }
 
-    .btn-primary, .btn-outline-primary:hover {
-      background-color: var(--theme-primary) !important;
-      border-color: var(--theme-primary) !important;
-    }
-    .btn-outline-primary {
-      color: var(--theme-primary) !important;
-      border-color: var(--theme-primary) !important;
-    }
-    .text-primary { color: var(--theme-primary) !important; }
-
+    /* Cards */
     .card {
-      background-color: var(--theme-card-bg) !important;
-      border-color: var(--theme-card-border) !important;
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--border-radius); box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+      margin-bottom: 1.5rem;
+    }
+    .card-header {
+      background: var(--card-header-bg); border-bottom: 1px solid var(--card-border);
+      padding: 0.85rem 1.25rem; border-radius: var(--border-radius) var(--border-radius) 0 0;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .card-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin: 0; }
+    .card-body { padding: 1.25rem; }
+
+    /* Stat cards */
+    .stat-card {
+      background: var(--card-bg); border: 1px solid var(--card-border);
+      border-radius: var(--border-radius); padding: 1.25rem;
+      display: flex; align-items: flex-start; gap: 1rem;
+      transition: transform var(--transition), box-shadow var(--transition);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .stat-icon {
+      width: 48px; height: 48px; border-radius: var(--border-radius);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .stat-icon.income { background: rgba(11,183,131,0.1); color: var(--success); }
+    .stat-icon.expense { background: rgba(246,78,96,0.1); color: var(--danger); }
+    .stat-icon.balance { background: rgba(54,153,255,0.1); color: var(--accent); }
+    .stat-icon.period { background: rgba(137,80,252,0.1); color: var(--info); }
+    .stat-info { flex: 1; min-width: 0; }
+    .stat-label { font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.03em; }
+    .stat-value { font-size: 1.3rem; font-weight: 700; color: var(--text-primary); margin-top: 0.15rem; }
+    .stat-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+    /* Tables */
+    .table { margin: 0; }
+    .table th {
+      font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em;
+      color: var(--text-muted); border-color: var(--card-border);
+      padding: 0.65rem 1.25rem; font-weight: 600;
+    }
+    .table td {
+      padding: 0.65rem 1.25rem; border-color: var(--card-border);
+      color: var(--text-primary); vertical-align: middle;
+    }
+    .table tbody tr { transition: background var(--transition); }
+    .table tbody tr:hover { background: rgba(54,153,255,0.03); }
+
+    /* Forms */
+    .form-control, .form-select {
+      background: var(--body-bg); border: 1px solid var(--card-border);
+      color: var(--text-primary); font-size: 0.875rem;
+      border-radius: calc(var(--border-radius) - 0.15rem);
+      padding: 0.5rem 0.75rem; transition: border-color var(--transition);
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-light);
+      background: var(--body-bg); color: var(--text-primary);
+    }
+    .form-control::placeholder { color: var(--sidebar-heading); }
+    .form-label { font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.25rem; }
+    .input-group-text {
+      background: var(--body-bg); border-color: var(--card-border);
+      color: var(--text-secondary);
     }
 
-    /* Small box accent */
-    .small-box.bg-info, .small-box.bg-primary { background-color: var(--theme-primary) !important; }
+    /* Buttons */
+    .btn-primary { background: var(--accent); border-color: var(--accent); border-radius: calc(var(--border-radius) - 0.15rem); }
+    .btn-primary:hover { background: #2684e0; border-color: #2684e0; }
+    .btn-outline-danger { color: var(--danger); border-color: var(--danger); border-radius: calc(var(--border-radius) - 0.15rem); }
+    .btn-outline-danger:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+    .btn-outline-secondary { border-radius: calc(var(--border-radius) - 0.15rem); }
+    .btn-sm { font-size: 0.78rem; padding: 0.3rem 0.6rem; }
 
-    /* Theme picker swatches */
-    .theme-swatch {
-      width: 48px; height: 48px; border-radius: .5rem; cursor: pointer;
-      border: 3px solid transparent; transition: all .15s;
+    /* Badges */
+    .badge { font-size: 0.72rem; font-weight: 500; padding: 0.25em 0.55em; border-radius: 0.3rem; }
+    .bg-success { background: var(--success) !important; }
+    .bg-danger { background: var(--danger) !important; }
+    .bg-warning { background: var(--warning) !important; color: #000; }
+    .bg-info { background: var(--info) !important; }
+    .text-success { color: var(--success) !important; }
+    .text-danger { color: var(--danger) !important; }
+    .text-secondary { color: var(--text-secondary) !important; }
+
+    /* Alerts */
+    .alert { border-radius: var(--border-radius); font-size: 0.85rem; padding: 0.7rem 1rem; border: none; }
+    .alert-danger { background: rgba(246,78,96,0.1); color: var(--danger); }
+    .alert-success { background: rgba(11,183,131,0.1); color: var(--success); }
+
+    /* Progress */
+    .progress { background: var(--body-bg); height: 6px; border-radius: 3px; }
+    .progress-bar { border-radius: 3px; background: var(--accent); }
+    .progress-bar.bg-danger { background: var(--danger) !important; }
+    .progress-bar.bg-warning { background: var(--warning) !important; }
+    .progress-bar.bg-success { background: var(--success) !important; }
+
+    /* Modal */
+    .modal-content { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--border-radius); }
+    .modal-header { border-color: var(--card-border); }
+    .modal-footer { border-color: var(--card-border); }
+    .btn-close { filter: invert(1) grayscale(1) brightness(2); }
+
+    /* Misc */
+    .text-muted { color: var(--text-muted) !important; }
+    .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
+
+    hr { border-color: var(--card-border); opacity: 0.5; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .sidebar { width: var(--sidebar-collapsed-w); }
+      .sidebar .brand-text, .sidebar .nav-label, .sidebar .sidebar-heading-text { display: none; }
+      .sidebar .nav-link { justify-content: center; padding: 0.75rem; }
+      .sidebar .nav-icon { margin-right: 0 !important; }
+      .topbar { left: var(--sidebar-collapsed-w); }
+      .content { margin-left: var(--sidebar-collapsed-w); }
     }
-    .theme-swatch:hover { transform: scale(1.1); }
-    .theme-swatch.active { border-color: var(--theme-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 30%, transparent); }
-    .theme-swatch-dark { background: linear-gradient(135deg, #212529 50%, #0d6efd 50%); }
-    .theme-swatch-light { background: linear-gradient(135deg, #f8f9fa 50%, #0d6efd 50%); }
-    .theme-swatch-ocean { background: linear-gradient(135deg, #0a2e3f 50%, #0dcaf0 50%); }
-    .theme-swatch-forest { background: linear-gradient(135deg, #0a1f14 50%, #198754 50%); }
-    .theme-swatch-sunset { background: linear-gradient(135deg, #2b1a0a 50%, #fd7e14 50%); }
-    .theme-swatch-midnight { background: linear-gradient(135deg, #1a112b 50%, #6f42c1 50%); }
   </style>
   {% block head %}{% endblock %}
 </head>
-<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
-<div class="app-wrapper">
+<body>
 
-  <!-- Sidebar -->
-  <aside class="app-sidebar bg-dark" data-bs-theme="dark">
-    <div class="sidebar-brand">
-      <a href="/" class="brand-link">
-        <i class="fa-solid fa-wallet brand-image"></i>
-        <span class="brand-text fw-light">Finance Tracker</span>
-      </a>
-    </div>
-    <div class="sidebar-wrapper">
-      <nav class="mt-2">
-        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu" data-accordion="false">
-          <li class="nav-item"><a href="/" class="nav-link"><i class="nav-icon fa-solid fa-gauge-high"></i><p>Dashboard</p></a></li>
-          <li class="nav-item"><a href="/transactions" class="nav-link"><i class="nav-icon fa-solid fa-arrow-right-arrow-left"></i><p>Transaksi</p></a></li>
-          <li class="nav-item"><a href="/masters" class="nav-link"><i class="nav-icon fa-solid fa-database"></i><p>Master Data</p></a></li>
-          <li class="nav-item"><a href="/budgets" class="nav-link"><i class="nav-icon fa-solid fa-chart-pie"></i><p>Budget</p></a></li>
-          <li class="nav-item"><a href="/reports" class="nav-link"><i class="nav-icon fa-solid fa-file-lines"></i><p>Laporan</p></a></li>
-          <li class="nav-item"><a href="/export" class="nav-link"><i class="nav-icon fa-solid fa-file-export"></i><p>Export CSV</p></a></li>
-          <li class="nav-item"><a href="/settings" class="nav-link"><i class="nav-icon fa-solid fa-gear"></i><p>Settings</p></a></li>
-          {% if user and user.is_admin %}
-          <li class="nav-item"><a href="/admin" class="nav-link"><i class="nav-icon fa-solid fa-user-shield"></i><p>Admin</p></a></li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-  </aside>
-
-  <!-- Navbar -->
-  <nav class="app-header navbar navbar-expand bg-body">
-    <div class="container-fluid">
-      <ul class="navbar-nav">
-        <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#" role="button"><i class="fa-solid fa-bars"></i></a></li>
-      </ul>
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-          <button class="nav-link btn btn-link" id="themeToggle" title="Ganti tema">
-            <i class="fa-solid fa-palette"></i>
-          </button>
-        </li>
-        <li class="nav-item">
-          <form method="post" action="/auth/logout" class="d-inline">
-            <button class="nav-link btn btn-link" type="submit"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
-          </form>
-        </li>
-      </ul>
-    </div>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <i class="fa-solid fa-wallet brand-icon"></i>
+    <span class="brand-text">Finance Tracker</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="sidebar-heading"><span class="sidebar-heading-text">Menu</span></div>
+    <ul class="nav-list">
+      <li><a href="/" class="nav-link {% if request.url.path == '/' %}active{% endif %}"><i class="nav-icon fa-solid fa-gauge-high"></i><span class="nav-label">Dashboard</span></a></li>
+      <li><a href="/transactions" class="nav-link {% if request.url.path == '/transactions' %}active{% endif %}"><i class="nav-icon fa-solid fa-arrow-right-arrow-left"></i><span class="nav-label">Transaksi</span></a></li>
+      <li><a href="/masters" class="nav-link {% if request.url.path == '/masters' %}active{% endif %}"><i class="nav-icon fa-solid fa-database"></i><span class="nav-label">Master Data</span></a></li>
+      <li><a href="/budgets" class="nav-link {% if request.url.path == '/budgets' %}active{% endif %}"><i class="nav-icon fa-solid fa-chart-pie"></i><span class="nav-label">Budget</span></a></li>
+      <li><a href="/reports" class="nav-link {% if request.url.path.startswith('/reports') %}active{% endif %}"><i class="nav-icon fa-solid fa-file-lines"></i><span class="nav-label">Laporan</span></a></li>
+      <li><a href="/export" class="nav-link"><i class="nav-icon fa-solid fa-file-export"></i><span class="nav-label">Export CSV</span></a></li>
+      <li><a href="/settings" class="nav-link {% if request.url.path == '/settings' %}active{% endif %}"><i class="nav-icon fa-solid fa-gear"></i><span class="nav-label">Settings</span></a></li>
+      {% if user and user.is_admin %}
+      <li><a href="/admin" class="nav-link {% if request.url.path == '/admin' %}active{% endif %}"><i class="nav-icon fa-solid fa-user-shield"></i><span class="nav-label">Admin</span></a></li>
+      {% endif %}
+    </ul>
   </nav>
+</aside>
 
-  <!-- Content -->
-  <main class="app-main">
-    <div class="app-content">
-      <div class="container-fluid">
-        {% block content %}{% endblock %}
-      </div>
+<!-- Topbar -->
+<header class="topbar" id="topbar">
+  <div class="topbar-left">
+    <button class="burger-btn" id="burgerBtn" title="Toggle sidebar"><i class="fa-solid fa-bars"></i></button>
+    <span class="topbar-title">{% block page_title %}Dashboard{% endblock %}</span>
+  </div>
+  <div class="topbar-right">
+    <div class="theme-switch" id="themeSwitch" title="Ganti mode">
+      <span class="theme-switch-option" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+      <span class="theme-switch-option active" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
     </div>
-  </main>
-</div>
+    <form method="post" action="/auth/logout">
+      <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket me-1"></i>Logout</button>
+    </form>
+  </div>
+</header>
+
+<!-- Content -->
+<main class="content">
+  {% block content %}{% endblock %}
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta3/dist/js/adminlte.min.js"></script>
 <script>
 (function() {
-  var themes = ["dark", "light", "ocean", "forest", "sunset", "midnight"];
-  var themeIcons = {"dark":"fa-moon","light":"fa-sun","ocean":"fa-water","forest":"fa-leaf","sunset":"fa-fire","midnight":"fa-cloud-moon"};
+  // Sidebar toggle
+  var sidebar = document.getElementById('sidebar');
+  var burger = document.getElementById('burgerBtn');
+  if (burger) {
+    burger.addEventListener('click', function() {
+      sidebar.classList.toggle('collapsed');
+      localStorage.setItem('ft-sidebar', sidebar.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+    });
+  }
+  if (localStorage.getItem('ft-sidebar') === 'collapsed') sidebar.classList.add('collapsed');
+
+  // Theme toggle
   var html = document.documentElement;
-
-  function setTheme(name) {
-    html.setAttribute("data-theme", name);
-    html.setAttribute("data-bs-theme", name === "light" ? "light" : "dark");
-    localStorage.setItem("ft-theme", name);
-    updateSwatches();
-    var icon = document.querySelector("#themeToggle i");
-    if (icon) icon.className = "fa-solid " + (themeIcons[name] || "fa-palette");
-  }
-
-  function updateSwatches() {
-    var current = html.getAttribute("data-theme");
-    document.querySelectorAll(".theme-swatch").forEach(function(el) {
-      el.classList.toggle("active", el.dataset.theme === current);
+  function setThemeUI(name) {
+    html.setAttribute('data-bs-theme', name);
+    localStorage.setItem('ft-theme', name);
+    document.querySelectorAll('.theme-switch-option').forEach(function(el) {
+      el.classList.toggle('active', el.dataset.mode === name);
     });
   }
-
-  // Restore saved theme
-  var saved = localStorage.getItem("ft-theme") || "dark";
-  setTheme(saved);
-
-  // Navbar toggle cycles through all themes
-  var toggle = document.getElementById("themeToggle");
-  if (toggle) {
-    toggle.addEventListener("click", function() {
-      var cur = html.getAttribute("data-theme");
-      var idx = themes.indexOf(cur);
-      var next = themes[(idx + 1) % themes.length];
-      setTheme(next);
+  var saved = localStorage.getItem('ft-theme') || 'dark';
+  setThemeUI(saved);
+  var sw = document.getElementById('themeSwitch');
+  if (sw) {
+    sw.addEventListener('click', function(e) {
+      var opt = e.target.closest('.theme-switch-option');
+      if (opt) setThemeUI(opt.dataset.mode);
     });
   }
-
-  // Global handler for theme picker swatches (delegated)
-  document.addEventListener("click", function(e) {
-    var swatch = e.target.closest(".theme-swatch");
-    if (swatch) {
-      setTheme(swatch.dataset.theme);
-    }
-  });
 })();
 </script>
 {% block scripts %}{% endblock %}

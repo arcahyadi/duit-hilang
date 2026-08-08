@@ -1,73 +1,84 @@
 {% extends "base.html" %}
 {% block title %}Laporan - Finance Tracker{% endblock %}
+{% block page_title %}Laporan{% endblock %}
 {% block content %}
-<div class="card mb-3">
+<div class="card mb-4">
   <div class="card-body">
     <form method="get" action="/reports" class="row g-2 align-items-end">
       <div class="col-auto"><label class="form-label">Bulan</label>
         <input type="month" name="month" class="form-control" value="{{ month }}">
       </div>
-      <div class="col-auto"><button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i> Tampilkan</button></div>
+      <div class="col-auto"><button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass me-2"></i>Tampilkan</button></div>
     </form>
   </div>
 </div>
 
-<div class="row g-3 mb-3">
-  <div class="col-md-4"><div class="small-box bg-success">
-    <div class="inner"><h3>{{ total_income|rupiah }}</h3><p>Pemasukan</p></div>
-    <div class="small-box-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
-  </div></div>
-  <div class="col-md-4"><div class="small-box bg-danger">
-    <div class="inner"><h3>{{ total_expense|rupiah }}</h3><p>Pengeluaran</p></div>
-    <div class="small-box-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
-  </div></div>
-  <div class="col-md-4"><div class="small-box bg-primary">
-    <div class="inner"><h3>{{ (total_income - total_expense)|rupiah }}</h3><p>Selisih</p></div>
-    <div class="small-box-icon"><i class="fa-solid fa-scale-balanced"></i></div>
-  </div></div>
+<div class="row g-4 mb-4">
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon income"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div class="stat-info"><div class="stat-label">Pemasukan</div><div class="stat-value">{{ total_income|rupiah }}</div></div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon expense"><i class="fa-solid fa-arrow-trend-down"></i></div>
+      <div class="stat-info"><div class="stat-label">Pengeluaran</div><div class="stat-value">{{ total_expense|rupiah }}</div></div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="stat-card">
+      <div class="stat-icon balance"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div class="stat-info"><div class="stat-label">Selisih</div><div class="stat-value">{{ (total_income - total_expense)|rupiah }}</div></div>
+    </div>
+  </div>
 </div>
 
-<div class="row g-3">
+<div class="row g-4">
   <div class="col-md-5">
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Per kategori</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-tags me-2"></i>Per Kategori</span></div>
       <div class="card-body p-0">
-        <table class="table table-sm mb-0">
+        <table class="table">
+          <tbody>
           {% for name, total in per_category.items() %}
-          <tr><td>{{ name }}</td><td class="text-end">{{ total|rupiah }}</td></tr>
+          <tr><td>{{ name }}</td><td class="text-end fw-semibold">{{ total|rupiah }}</td></tr>
           {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>
-    <div class="card mt-3">
-      <div class="card-header"><h3 class="card-title">Per akun</h3></div>
+    <div class="card">
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-wallet me-2"></i>Per Akun</span></div>
       <div class="card-body p-0">
-        <table class="table table-sm mb-0">
+        <table class="table">
+          <tbody>
           {% for name, total in per_account.items() %}
-          <tr><td>{{ name }}</td><td class="text-end">{{ total|rupiah }}</td></tr>
+          <tr><td>{{ name }}</td><td class="text-end fw-semibold">{{ total|rupiah }}</td></tr>
           {% endfor %}
+          </tbody>
         </table>
       </div>
     </div>
   </div>
   <div class="col-md-7">
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Detail transaksi</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-list me-2"></i>Detail Transaksi</span></div>
       <div class="card-body p-0">
-        <table class="table table-sm table-striped mb-0">
+        <table class="table">
           <thead><tr><th>Tanggal</th><th>Tipe</th><th>Kategori</th><th>Akun</th><th>Catatan</th><th class="text-end">Jumlah</th></tr></thead>
           <tbody>
           {% for t in transactions %}
             <tr>
               <td>{{ t.date }}</td>
-              <td>{{ 'Masuk' if t.type == 'income' else 'Keluar' }}</td>
+              <td><span class="badge {{ 'bg-success' if t.type == 'income' else 'bg-danger' }}">{{ 'Masuk' if t.type == 'income' else 'Keluar' }}</span></td>
               <td>{{ t.category.name if t.category else '-' }}</td>
               <td>{{ t.account.name if t.account else '-' }}</td>
               <td>{{ t.note or '-' }}</td>
-              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
+              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }} fw-semibold">{{ t.amount|rupiah }}</td>
             </tr>
           {% else %}
-            <tr><td colspan="6" class="text-center text-secondary">Tidak ada transaksi bulan ini</td></tr>
+            <tr><td colspan="6" class="empty-state">Tidak ada transaksi bulan ini</td></tr>
           {% endfor %}
           </tbody>
         </table>

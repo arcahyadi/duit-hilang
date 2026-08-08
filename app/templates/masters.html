@@ -1,45 +1,28 @@
 {% extends "base.html" %}
 {% block title %}Master Data - Finance Tracker{% endblock %}
+{% block page_title %}Master Data{% endblock %}
 {% block content %}
-<div class="row g-3">
-  <!-- Theme Picker -->
-  <div class="col-12">
-    <div class="card">
-      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-palette"></i> Tema</h3></div>
-      <div class="card-body">
-        <div class="d-flex gap-3 flex-wrap align-items-center">
-          <div class="theme-swatch theme-swatch-dark" data-theme="dark" title="Dark"></div>
-          <div class="theme-swatch theme-swatch-light" data-theme="light" title="Light"></div>
-          <div class="theme-swatch theme-swatch-ocean" data-theme="ocean" title="Ocean"></div>
-          <div class="theme-swatch theme-swatch-forest" data-theme="forest" title="Forest"></div>
-          <div class="theme-swatch theme-swatch-sunset" data-theme="sunset" title="Sunset"></div>
-          <div class="theme-swatch theme-swatch-midnight" data-theme="midnight" title="Midnight"></div>
-        </div>
-        <div class="mt-2 text-secondary small">Klik salah satu untuk ganti tema. Disimpan otomatis.</div>
-      </div>
-    </div>
-  </div>
-
+<div class="row g-4">
   <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-tags"></i> Kategori</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-tags me-2"></i>Kategori</span></div>
       <div class="card-body">
-        <table class="table table-sm table-striped mb-3">
+        <table class="table mb-3">
           <thead><tr><th>Nama</th><th>Tipe</th><th class="text-end">Aksi</th></tr></thead>
           <tbody>
           {% for c in categories %}
             <tr>
               <td>{{ c.name }}</td>
-              <td><span class="badge {{ 'text-bg-success' if c.type == 'income' else 'text-bg-danger' }}">{{ 'Masuk' if c.type == 'income' else 'Keluar' }}</span></td>
+              <td><span class="badge {{ 'bg-success' if c.type == 'income' else 'bg-danger' }}">{{ 'Masuk' if c.type == 'income' else 'Keluar' }}</span></td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary" onclick="editCat('{{ c.id }}', '{{ c.name }}', '{{ c.type }}')"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-secondary me-1" onclick="editCat('{{ c.id }}', '{{ c.name }}', '{{ c.type }}')"><i class="fa-solid fa-pen"></i></button>
                 <form method="post" action="/categories/{{ c.id }}/delete" class="d-inline" onsubmit="return confirm('Hapus kategori ini? Transaksi dengan kategori ini jadi tanpa kategori.')">
                   <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
                 </form>
               </td>
             </tr>
           {% else %}
-            <tr><td colspan="3" class="text-center text-secondary">Belum ada kategori</td></tr>
+            <tr><td colspan="3" class="empty-state">Belum ada kategori</td></tr>
           {% endfor %}
           </tbody>
         </table>
@@ -53,23 +36,23 @@
   </div>
   <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-wallet"></i> Akun</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-wallet me-2"></i>Akun</span></div>
       <div class="card-body">
-        <table class="table table-sm table-striped mb-3">
+        <table class="table mb-3">
           <thead><tr><th>Nama</th><th class="text-end">Aksi</th></tr></thead>
           <tbody>
           {% for a in accounts %}
             <tr>
               <td>{{ a.name }}</td>
               <td class="text-end">
-                <button class="btn btn-sm btn-outline-primary" onclick="editAcc('{{ a.id }}', '{{ a.name }}')"><i class="fa-solid fa-pen"></i></button>
+                <button class="btn btn-sm btn-outline-secondary me-1" onclick="editAcc('{{ a.id }}', '{{ a.name }}')"><i class="fa-solid fa-pen"></i></button>
                 <form method="post" action="/accounts/{{ a.id }}/delete" class="d-inline" onsubmit="return confirm('Hapus akun ini?')">
                   <button class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></button>
                 </form>
               </td>
             </tr>
           {% else %}
-            <tr><td colspan="2" class="text-center text-secondary">Belum ada akun</td></tr>
+            <tr><td colspan="2" class="empty-state">Belum ada akun</td></tr>
           {% endfor %}
           </tbody>
         </table>
@@ -95,10 +78,7 @@
           <select name="type" id="editType" class="form-select"><option value="expense">Keluar</option><option value="income">Masuk</option></select>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-        <button type="submit" class="btn btn-primary">Simpan</button>
-      </div>
+      <div class="modal-footer"><button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button><button type="submit" class="btn btn-primary">Simpan</button></div>
     </form>
   </div></div>
 </div>

@@ -1,54 +1,58 @@
 {% extends "base.html" %}
 {% block title %}Dashboard - Finance Tracker{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
 {% block content %}
-<div class="row g-3 mb-4">
-  <div class="col-6 col-md-3">
-    <div class="small-box bg-success">
-      <div class="inner"><h3>{{ income|rupiah }}</h3><p>Pemasukan</p></div>
-      <div class="small-box-icon"><i class="fa-solid fa-arrow-trend-up"></i></div>
+<div class="row g-4 mb-4">
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon income"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div class="stat-info"><div class="stat-label">Pemasukan</div><div class="stat-value">{{ income|rupiah }}</div></div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="small-box bg-danger">
-      <div class="inner"><h3>{{ expense|rupiah }}</h3><p>Pengeluaran</p></div>
-      <div class="small-box-icon"><i class="fa-solid fa-arrow-trend-down"></i></div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon expense"><i class="fa-solid fa-arrow-trend-down"></i></div>
+      <div class="stat-info"><div class="stat-label">Pengeluaran</div><div class="stat-value">{{ expense|rupiah }}</div></div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="small-box bg-primary">
-      <div class="inner"><h3>{{ balance|rupiah }}</h3><p>Saldo bulan ini</p></div>
-      <div class="small-box-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon balance"><i class="fa-solid fa-scale-balanced"></i></div>
+      <div class="stat-info"><div class="stat-label">Saldo</div><div class="stat-value">{{ balance|rupiah }}</div></div>
     </div>
   </div>
-  <div class="col-6 col-md-3">
-    <div class="small-box bg-info">
-      <div class="inner"><h3>{{ month }}</h3><p>Periode</p></div>
-      <div class="small-box-icon"><i class="fa-solid fa-calendar"></i></div>
+  <div class="col-6 col-xl-3">
+    <div class="stat-card">
+      <div class="stat-icon period"><i class="fa-solid fa-calendar"></i></div>
+      <div class="stat-info"><div class="stat-label">Periode</div><div class="stat-value">{{ month }}</div></div>
     </div>
   </div>
 </div>
 
-<div class="row g-3">
-  <div class="col-md-6">
+<div class="row g-4">
+  <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Pengeluaran per kategori</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-chart-pie me-2"></i>Pengeluaran per Kategori</span></div>
       <div class="card-body">
-        <canvas id="catChart" height="220"></canvas>
-        <ul class="list-group list-group-flush mt-3">
+        <canvas id="catChart" height="240"></canvas>
+        <div class="mt-3">
           {% for name, total in by_category.items() %}
-          <li class="list-group-item d-flex justify-content-between">
-            <span>{{ name }}</span><span>{{ total|rupiah }}</span>
-          </li>
+          <div class="d-flex justify-content-between py-2 border-bottom border-secondary" style="border-color: var(--card-border) !important;">
+            <span>{{ name }}</span><span class="fw-semibold">{{ total|rupiah }}</span>
+          </div>
           {% endfor %}
-        </ul>
+        </div>
       </div>
     </div>
   </div>
-  <div class="col-md-6">
+  <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title">Transaksi terakhir</h3></div>
+      <div class="card-header">
+        <span class="card-title"><i class="fa-solid fa-clock-rotate-left me-2"></i>Transaksi Terakhir</span>
+        <a href="/transactions" class="btn btn-sm btn-primary">Lihat Semua</a>
+      </div>
       <div class="card-body p-0">
-        <table class="table table-sm mb-0">
+        <table class="table">
           <thead><tr><th>Tanggal</th><th>Kategori</th><th>Akun</th><th class="text-end">Jumlah</th></tr></thead>
           <tbody>
           {% for t in recent %}
@@ -56,10 +60,10 @@
               <td>{{ t.date }}</td>
               <td>{{ t.category.name if t.category else "-" }}</td>
               <td>{{ t.account.name if t.account else "-" }}</td>
-              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }}">{{ t.amount|rupiah }}</td>
+              <td class="text-end {{ 'text-success' if t.type == 'income' else 'text-danger' }} fw-semibold">{{ t.amount|rupiah }}</td>
             </tr>
           {% else %}
-            <tr><td colspan="4" class="text-center text-secondary">Belum ada transaksi</td></tr>
+            <tr><td colspan="4" class="empty-state">Belum ada transaksi</td></tr>
           {% endfor %}
           </tbody>
         </table>
@@ -74,11 +78,11 @@
 const labels = {{ by_category.keys()|list|tojson }};
 const values = {{ by_category.values()|list|tojson }};
 const theme = document.documentElement.getAttribute('data-bs-theme');
-const labelColor = theme === 'light' ? '#333' : '#e0e0e0';
+const labelColor = theme === 'light' ? '#333' : '#a2a3b7';
 new Chart(document.getElementById('catChart'), {
   type: 'doughnut',
-  data: { labels: labels, datasets: [{ data: values, backgroundColor: ['#e94560','#0078d4','#00c853','#ffc107','#9c27b0','#ff7043','#26c6da','#8d6e63'] }] },
-  options: { plugins: { legend: { labels: { color: labelColor } } } }
+  data: { labels: labels, datasets: [{ data: values, backgroundColor: ['#f64e60','#3699ff','#0bb783','#ffa800','#8950fc','#ff7043','#26c6da','#8d6e63'] }] },
+  options: { plugins: { legend: { labels: { color: labelColor } } }, cutout: '65%' }
 });
 </script>
 {% endblock %}

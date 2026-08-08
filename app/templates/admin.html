@@ -1,14 +1,15 @@
 {% extends "base.html" %}
 {% block title %}Admin - Finance Tracker{% endblock %}
+{% block page_title %}Admin{% endblock %}
 {% block content %}
-<div class="row g-3">
+<div class="row g-4">
   <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-users"></i> User</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-users me-2"></i>User</span></div>
       <div class="card-body">
-        {% if request.query_params.get('error') == 'exists' %}<div class="alert alert-warning">Email sudah terdaftar</div>{% endif %}
-        {% if request.query_params.get('error') == 'missing' %}<div class="alert alert-warning">Lengkapi email & password</div>{% endif %}
-        <table class="table table-sm">
+        {% if request.query_params.get('error') == 'exists' %}<div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i>Email sudah terdaftar</div>{% endif %}
+        {% if request.query_params.get('error') == 'missing' %}<div class="alert alert-warning"><i class="fa-solid fa-triangle-exclamation me-1"></i>Lengkapi email & password</div>{% endif %}
+        <table class="table">
           <thead><tr><th>Email</th><th>Role</th><th></th></tr></thead>
           <tbody>
           {% for u in users %}
@@ -36,15 +37,15 @@
   </div>
   <div class="col-lg-6">
     <div class="card">
-      <div class="card-header"><h3 class="card-title"><i class="fa-solid fa-key"></i> API keys</h3></div>
+      <div class="card-header"><span class="card-title"><i class="fa-solid fa-key me-2"></i>API Keys</span></div>
       <div class="card-body">
         {% if new_key %}
-        <div class="alert alert-success">
-          <strong>Simpan key ini, hanya tampil sekali:</strong><br>
+        <div class="alert alert-success mb-3">
+          <strong><i class="fa-solid fa-circle-check me-1"></i>Simpan key ini, hanya tampil sekali:</strong><br>
           <code>{{ new_key }}</code>
         </div>
         {% endif %}
-        <table class="table table-sm">
+        <table class="table">
           <thead><tr><th>Nama</th><th>Scope</th><th>Status</th><th>Dibuat</th><th></th></tr></thead>
           <tbody>
           {% for k in api_keys %}
@@ -52,9 +53,9 @@
               <td>{{ k.name }}</td>
               <td>
                 {% if k.write_access %}
-                  <span class="badge text-bg-warning"><i class="fa-solid fa-pen"></i> Read+Write</span>
+                  <span class="badge bg-warning"><i class="fa-solid fa-pen me-1"></i>Read+Write</span>
                 {% else %}
-                  <span class="badge text-bg-secondary"><i class="fa-solid fa-eye"></i> Read-only</span>
+                  <span class="badge bg-secondary"><i class="fa-solid fa-eye me-1"></i>Read-only</span>
                 {% endif %}
               </td>
               <td>{{ 'Revoked' if k.revoked else 'Aktif' }}</td>
@@ -76,7 +77,7 @@
             <input class="form-check-input" type="checkbox" role="switch" id="writeAccess" name="write_access">
             <label class="form-check-label small" for="writeAccess">Write</label>
           </div>
-          <button class="btn btn-primary"><i class="fa-solid fa-plus"></i> Buat</button>
+          <button class="btn btn-primary"><i class="fa-solid fa-plus me-1"></i>Buat</button>
         </form>
       </div>
     </div>
