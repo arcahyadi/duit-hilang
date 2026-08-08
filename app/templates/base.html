@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" data-bs-theme="dark">
+<html lang="id" data-bs-theme="dark" data-theme="dark">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,6 +13,138 @@
     .small-box .inner h3 { font-size: 1.6rem; font-weight: 700; margin: 0; }
     .small-box .inner p { font-size: .95rem; margin: .25rem 0 0; }
     .small-box .small-box-icon { font-size: 3.5rem; }
+
+    /* ── Theme system ── */
+
+    /* Dark (default) */
+    :root[data-theme="dark"] {
+      --theme-name: "Dark";
+      --theme-primary: #0d6efd;
+      --theme-primary-rgb: 13,110,253;
+      --theme-accent: #3d8bfd;
+      --theme-sidebar-bg: #212529;
+      --theme-sidebar-color: #c2c7d0;
+      --theme-navbar-bg: #1a1e21;
+      --theme-card-bg: #2b3035;
+      --theme-card-border: #373b3e;
+    }
+
+    /* Light */
+    :root[data-theme="light"] {
+      --theme-name: "Light";
+      --theme-primary: #0d6efd;
+      --theme-primary-rgb: 13,110,253;
+      --theme-accent: #0a58ca;
+      --theme-sidebar-bg: #f8f9fa;
+      --theme-sidebar-color: #212529;
+      --theme-navbar-bg: #ffffff;
+      --theme-card-bg: #ffffff;
+      --theme-card-border: #dee2e6;
+    }
+
+    /* Ocean */
+    :root[data-theme="ocean"] {
+      --theme-name: "Ocean";
+      --theme-primary: #0dcaf0;
+      --theme-primary-rgb: 13,202,240;
+      --theme-accent: #31d2f2;
+      --theme-sidebar-bg: #0a2e3f;
+      --theme-sidebar-color: #b6e5f0;
+      --theme-navbar-bg: #0d3b4f;
+      --theme-card-bg: #143d52;
+      --theme-card-border: #1d5068;
+    }
+
+    /* Forest */
+    :root[data-theme="forest"] {
+      --theme-name: "Forest";
+      --theme-primary: #198754;
+      --theme-primary-rgb: 25,135,84;
+      --theme-accent: #20c997;
+      --theme-sidebar-bg: #0a1f14;
+      --theme-sidebar-color: #a3d9b1;
+      --theme-navbar-bg: #0d2a1b;
+      --theme-card-bg: #143621;
+      --theme-card-border: #1e4a2e;
+    }
+
+    /* Sunset */
+    :root[data-theme="sunset"] {
+      --theme-name: "Sunset";
+      --theme-primary: #fd7e14;
+      --theme-primary-rgb: 253,126,20;
+      --theme-accent: #ffc107;
+      --theme-sidebar-bg: #2b1a0a;
+      --theme-sidebar-color: #f5d5a8;
+      --theme-navbar-bg: #332010;
+      --theme-card-bg: #3d2818;
+      --theme-card-border: #523a22;
+    }
+
+    /* Midnight */
+    :root[data-theme="midnight"] {
+      --theme-name: "Midnight";
+      --theme-primary: #6f42c1;
+      --theme-primary-rgb: 111,66,193;
+      --theme-accent: #a98eda;
+      --theme-sidebar-bg: #1a112b;
+      --theme-sidebar-color: #c9b8e8;
+      --theme-navbar-bg: #221838;
+      --theme-card-bg: #2b1d44;
+      --theme-card-border: #3d2d5c;
+    }
+
+    /* Apply theme variables to AdminLTE elements */
+    .app-sidebar {
+      background-color: var(--theme-sidebar-bg) !important;
+      color: var(--theme-sidebar-color) !important;
+    }
+    .app-sidebar .nav-link { color: var(--theme-sidebar-color) !important; }
+    .app-sidebar .nav-link.active {
+      background-color: var(--theme-primary) !important;
+      color: #fff !important;
+    }
+    .app-sidebar .nav-link:hover:not(.active) {
+      background-color: color-mix(in srgb, var(--theme-primary) 20%, transparent) !important;
+    }
+    .app-sidebar .brand-link { color: var(--theme-sidebar-color) !important; }
+
+    .app-header {
+      background-color: var(--theme-navbar-bg) !important;
+      border-bottom: 1px solid var(--theme-card-border) !important;
+    }
+
+    .btn-primary, .btn-outline-primary:hover {
+      background-color: var(--theme-primary) !important;
+      border-color: var(--theme-primary) !important;
+    }
+    .btn-outline-primary {
+      color: var(--theme-primary) !important;
+      border-color: var(--theme-primary) !important;
+    }
+    .text-primary { color: var(--theme-primary) !important; }
+
+    .card {
+      background-color: var(--theme-card-bg) !important;
+      border-color: var(--theme-card-border) !important;
+    }
+
+    /* Small box accent */
+    .small-box.bg-info, .small-box.bg-primary { background-color: var(--theme-primary) !important; }
+
+    /* Theme picker swatches */
+    .theme-swatch {
+      width: 48px; height: 48px; border-radius: .5rem; cursor: pointer;
+      border: 3px solid transparent; transition: all .15s;
+    }
+    .theme-swatch:hover { transform: scale(1.1); }
+    .theme-swatch.active { border-color: var(--theme-accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-accent) 30%, transparent); }
+    .theme-swatch-dark { background: linear-gradient(135deg, #212529 50%, #0d6efd 50%); }
+    .theme-swatch-light { background: linear-gradient(135deg, #f8f9fa 50%, #0d6efd 50%); }
+    .theme-swatch-ocean { background: linear-gradient(135deg, #0a2e3f 50%, #0dcaf0 50%); }
+    .theme-swatch-forest { background: linear-gradient(135deg, #0a1f14 50%, #198754 50%); }
+    .theme-swatch-sunset { background: linear-gradient(135deg, #2b1a0a 50%, #fd7e14 50%); }
+    .theme-swatch-midnight { background: linear-gradient(135deg, #1a112b 50%, #6f42c1 50%); }
   </style>
   {% block head %}{% endblock %}
 </head>
@@ -54,7 +186,7 @@
       <ul class="navbar-nav ms-auto">
         <li class="nav-item">
           <button class="nav-link btn btn-link" id="themeToggle" title="Ganti tema">
-            <i class="fa-solid fa-moon"></i>
+            <i class="fa-solid fa-palette"></i>
           </button>
         </li>
         <li class="nav-item">
@@ -80,15 +212,47 @@
 <script src="https://cdn.jsdelivr.net/npm/admin-lte@4.0.0-beta3/dist/js/adminlte.min.js"></script>
 <script>
 (function() {
-  const saved = localStorage.getItem('ft-theme');
-  if (saved === 'light') document.documentElement.setAttribute('data-bs-theme', 'light');
-  const toggle = document.getElementById('themeToggle');
-  if (toggle) toggle.addEventListener('click', function() {
-    const html = document.documentElement;
-    const next = html.getAttribute('data-bs-theme') === 'light' ? 'dark' : 'light';
-    html.setAttribute('data-bs-theme', next);
-    localStorage.setItem('ft-theme', next);
-    toggle.querySelector('i').className = next === 'light' ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  var themes = ["dark", "light", "ocean", "forest", "sunset", "midnight"];
+  var themeIcons = {"dark":"fa-moon","light":"fa-sun","ocean":"fa-water","forest":"fa-leaf","sunset":"fa-fire","midnight":"fa-cloud-moon"};
+  var html = document.documentElement;
+
+  function setTheme(name) {
+    html.setAttribute("data-theme", name);
+    html.setAttribute("data-bs-theme", name === "light" ? "light" : "dark");
+    localStorage.setItem("ft-theme", name);
+    updateSwatches();
+    var icon = document.querySelector("#themeToggle i");
+    if (icon) icon.className = "fa-solid " + (themeIcons[name] || "fa-palette");
+  }
+
+  function updateSwatches() {
+    var current = html.getAttribute("data-theme");
+    document.querySelectorAll(".theme-swatch").forEach(function(el) {
+      el.classList.toggle("active", el.dataset.theme === current);
+    });
+  }
+
+  // Restore saved theme
+  var saved = localStorage.getItem("ft-theme") || "dark";
+  setTheme(saved);
+
+  // Navbar toggle cycles through all themes
+  var toggle = document.getElementById("themeToggle");
+  if (toggle) {
+    toggle.addEventListener("click", function() {
+      var cur = html.getAttribute("data-theme");
+      var idx = themes.indexOf(cur);
+      var next = themes[(idx + 1) % themes.length];
+      setTheme(next);
+    });
+  }
+
+  // Global handler for theme picker swatches (delegated)
+  document.addEventListener("click", function(e) {
+    var swatch = e.target.closest(".theme-swatch");
+    if (swatch) {
+      setTheme(swatch.dataset.theme);
+    }
   });
 })();
 </script>
